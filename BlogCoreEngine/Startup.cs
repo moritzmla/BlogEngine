@@ -25,8 +25,8 @@ namespace BlogCoreEngine
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AccountDbContext>(options => options.UseSqlServer("Server=.;Database=BCE_User;Trusted_Connection=True;MultipleActiveResultSets=true"));
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=.;Database=BCE_Data;Trusted_Connection=True;MultipleActiveResultSets=true"));
+            services.AddDbContext<AccountDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("UserConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AccountDbContext>().AddDefaultTokenProviders();
 
