@@ -1,0 +1,41 @@
+﻿/* BlogPosts */
+
+#BlogPosts li {
+    width: 96%;
+    margin: auto;
+    padding: 15px;
+    display: inherit;
+    border: 0.5px solid lightgray;
+}
+
+#BlogPosts li:hover {
+    transition: 0.2s all;
+    box-shadow: 0 0 10px rgba(0,0,0,0.22);
+}
+
+#BlogPosts .headline {
+    display: flex;
+    flex-direction: row;
+}
+
+#BlogPosts a:hover {
+    text-decoration: underline;
+}
+
+#BlogPosts .content {
+    margin-top: 10px;
+}
+
+#BlogPosts .underline {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+}
+
+#BlogPosts .underline a {
+    margin-right: 15px;
+}
+
+#BlogPosts .underline h1 {
+    margin-right: 15px;
+}

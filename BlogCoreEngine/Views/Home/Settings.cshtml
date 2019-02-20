@@ -1,0 +1,36 @@
+﻿@model BlogCoreEngine.Models.ViewModels.SettingViewModel
+
+@{
+}
+
+<div class="left-container">
+    <h3><strong>Admin Panel</strong></h3>
+
+    <hr />
+
+    <a class="clickLink" asp-controller="Home" asp-action="AdminPanel">General</a>
+    <a class="clickLink" asp-controller="Home" asp-action="Settings">Settings</a>
+    <a class="clickLink" asp-controller="Home" asp-action="Users">Users</a>
+</div>
+
+<div class="container">
+    <h1>Admin Panel › <strong>Settings</strong></h1>
+
+    <form asp-controller="Home" asp-action="Settings" method="post" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label asp-for="Logo"></label>
+            <input asp-for="Logo" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Title"></label>
+            <input asp-for="Title" value="@Model.Title" />
+        </div>
+
+        <input class="clickLink" type="submit" value="Save" />
+
+        <div class="errors" asp-validation-summary="All"></div>
+    </form>
+</div>
+

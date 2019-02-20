@@ -1,0 +1,71 @@
+﻿@model BlogCoreEngine.Models.ViewModels.BigViewModel
+
+@{
+    @using BlogCoreEngine.Models.DataModels
+}
+
+
+<div class="container" id="BlogPosts">
+    <h2><a asp-controller="Blog" asp-action="DetailsBlogPost" asp-route-id="@Model.BlogPostDataModel.Id"><strong>@(char.ToUpper(Model.BlogPostDataModel.Title[0]) + Model.BlogPostDataModel.Title.Substring(1))</strong></a></h2>
+
+    <hr />
+
+    <div class="headline">
+        <a asp-controller="Account" asp-action="Profil" asp-route-id="@Model.BlogPostDataModel.CreatorId">von @(char.ToUpper(Model.BlogPostDataModel.CreatorName[0]) + Model.BlogPostDataModel.CreatorName.Substring(1))</a>
+        <h2 style="color: gray; margin-left: 10px;">@Model.BlogPostDataModel.LastChangeDate.ToString("dd.MM.yyyy · HH:mm")</h2>
+    </div>
+
+    <div class="content">
+        <p>@Model.BlogPostDataModel.Content</p>
+    </div>
+
+    <div class="underline">
+        <a class="clickLink" asp-controller="Home" asp-action="Index">Back</a>
+        <h1 style="color: gray;">@Model.BlogPostDataModel.Views Views</h1>
+        <h1><strong>@Model.BlogPostDataModel.Comments</strong> Comments</h1>
+
+        @if (ViewBag.CurrentUserId == Model.BlogPostDataModel.CreatorId || User.IsInRole("Administrator"))
+        {
+            <a class="clickLink" asp-controller="Blog" asp-action="EditBlogPost" asp-route-id="@Model.BlogPostDataModel.Id">Edit</a>
+            <a class="clickLink" style="color: red" asp-controller="Blog" asp-action="DeleteBlogPost" asp-route-id="@Model.BlogPostDataModel.Id">Delete</a>
+        }
+    </div>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <form asp-controller="Blog" asp-action="NewComment" asp-route-id="@Model.BlogPostDataModel.Id" method="post">
+
+            <div class="form-group">
+                <textarea style="height: 100px" asp-for="CommentViewModel.Content"></textarea>
+            </div>
+
+            <input class="clickLink" type="submit" value="Comment" />
+
+            <div class="errors" asp-validation-summary="All"></div>
+        </form>
+    }
+
+    <ul style="margin-top: 15px">
+        @foreach (CommentDataModel commentDataModel in Model.CommentDataModels)
+        {
+            <li style="box-shadow: none; margin: 0; border-top: 1px solid lightgray;">
+                <div class="headline">
+                    <a asp-controller="Account" asp-action="Profil" asp-route-id="@commentDataModel.CreatorId"><strong>@(char.ToUpper(commentDataModel.CreatorName[0]) + commentDataModel.CreatorName.Substring(1))</strong></a>
+                    <h3 style="margin-left: 10px; color: gray;">@commentDataModel.UploadDate.ToString("dd.MM.yyyy · HH:mm")</h3>
+                </div>
+
+                <div class="content">
+                    <p>@commentDataModel.Content</p>
+                </div>
+
+                @if (ViewBag.CurrentUserId == commentDataModel.CreatorId || User.IsInRole("Administrator"))
+                 {
+                    <div class="underline">
+                        <a class="clickLink" asp-controller="Blog" asp-action="EditComment" asp-route-id="@commentDataModel.Id">Edit</a>
+                        <a class="clickLink" style="color: red" asp-controller="Blog" asp-action="DeleteComment" asp-route-id="@commentDataModel.Id">Delete</a>
+                    </div>
+                 }
+            </li>
+        }
+    </ul>
+</div>

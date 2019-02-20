@@ -1,0 +1,30 @@
+﻿@model BlogCoreEngine.Models.ViewModels.BlogPostViewModel
+
+@{
+}
+
+<div class="container">
+    <form asp-controller="Blog" asp-action="NewBlogPost" method="post">
+
+        <div class="form-group">
+            <label asp-for="Title"></label>
+            <input asp-for="Title" />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Preview"></label>
+            <textarea style="height: 100px" asp-for="Preview"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Content"></label>
+            <textarea asp-for="Content"></textarea>
+        </div>
+
+        <input class="clickLink" type="submit" value="Upload" />
+
+        <div class="errors" asp-validation-summary="All"></div>
+    </form>
+</div>
+
+
