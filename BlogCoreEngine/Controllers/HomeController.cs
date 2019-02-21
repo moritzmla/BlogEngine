@@ -36,7 +36,7 @@ namespace BlogCoreEngine.Controllers
 
         public IActionResult Index()
         {
-            SetIdentity();
+            SetDatabase();
             SetViewBags();
 
             return View(this.applicationDbContext.BlogPosts.ToList());
@@ -156,10 +156,31 @@ namespace BlogCoreEngine.Controllers
 
         // Private
 
-        private void SetIdentity()
+        private async void SetIdentity()
+        {
+            accountDbContext.Database.EnsureCreated();
+
+            if(!await this.roleManager.RoleExistsAsync("Administrator"))
+            {
+                await this.roleManager.CreateAsync(new IdentityRole("Administrator"));
+            }
+
+            if(this.accountDbContext.Users.Count() <= 0)
+            {
+                ApplicationUser adminUser = new ApplicationUser();
+                adminUser.UserName = "Admin";
+                adminUser.Email = "default@default.com";
+
+                await this.userManager.CreateAsync(adminUser, "adminPassword");
+                await this.userManager.AddToRoleAsync(adminUser, "Administrator");
+            }
+
+            await this.applicationDbContext.SaveChangesAsync();
+        }
+
+        private async void SetDatabase()
         {
             applicationDbContext.Database.EnsureCreated();
-            accountDbContext.Database.EnsureCreated();
 
             if (this.applicationDbContext.Settings.Count() <= 0)
             {
@@ -169,8 +190,9 @@ namespace BlogCoreEngine.Controllers
                     Logo = System.IO.File.ReadAllBytes(".//wwwroot//images//Logo.png")
                 });
             }
+            await this.applicationDbContext.SaveChangesAsync();
 
-            this.applicationDbContext.SaveChanges();
+            SetIdentity();
         }
 
         private void SetViewBags()

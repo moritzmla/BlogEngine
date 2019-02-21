@@ -67,7 +67,9 @@ namespace BlogCoreEngine.Controllers
                     if(result.Succeeded)
                     {
                         this.userManager.AddToRoleAsync(applicationUser, "Writer");
+
                         this.signInManager.PasswordSignInAsync(registerViewModel.UserName, registerViewModel.Password, registerViewModel.RememberMe, false);
+
                         return RedirectToAction("Index", "Home");
                     } else
                     {

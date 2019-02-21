@@ -16,17 +16,17 @@ namespace BlogCoreEngine
 {
     public class Startup
     {
-        public IConfiguration Configuration { get; }
-
         public Startup(IConfiguration _configuration)
         {
             this.Configuration = _configuration;
         }
 
+        public IConfiguration Configuration { get; }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AccountDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("UserConnection")));
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection")));
+            services.AddDbContext<AccountDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("UserConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AccountDbContext>().AddDefaultTokenProviders();
 
