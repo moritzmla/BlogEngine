@@ -90,7 +90,7 @@ namespace BlogCoreEngine.Controllers
         {
             CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
 
-            if (!this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId))
+            if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
@@ -118,7 +118,7 @@ namespace BlogCoreEngine.Controllers
 
             CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
 
-            if(!this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId))
+            if(!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
@@ -146,7 +146,7 @@ namespace BlogCoreEngine.Controllers
 
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
-            if (!this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(target.CreatorId))
+            if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(target.CreatorId) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
@@ -228,7 +228,7 @@ namespace BlogCoreEngine.Controllers
         {
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
-            if (!this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(target.CreatorId))
+            if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(target.CreatorId) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }

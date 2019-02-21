@@ -16,3 +16,13 @@
         <div class="errors" asp-validation-summary="All"></div>
     </form>
 </div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="right-container">
+        <h1 style="text-align: center"><a asp-controller="Account" asp-action="Profil" asp-route-id="@ViewBag.CurrentUserId"><strong>@(char.ToUpper(User.Identity.Name[0]) + User.Identity.Name.Substring(1))</strong></a></h1>
+        <hr />
+        <h1>Posts: <strong>@ViewBag.UserBlogPostCount</strong></h1>
+        <h1>Comments: <strong>@ViewBag.UserCommentCount</strong></h1>
+    </div>
+}
