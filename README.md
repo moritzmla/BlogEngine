@@ -22,6 +22,7 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
 # Features
 - Login/Register System
 - User Comments
+- View System
 - Admin Panel
   - Change Blog Name
   - Change Blog Logo
