@@ -36,7 +36,6 @@ namespace BlogCoreEngine.Controllers
 
         public IActionResult Index()
         {
-            SetDatabase();
             SetViewBags();
 
             return View(this.applicationDbContext.BlogPosts.ToList());
@@ -52,6 +51,11 @@ namespace BlogCoreEngine.Controllers
         [HttpPost]
         public IActionResult Index(string searchString)
         {
+            if(searchString == null || searchString.Length <= 0)
+            {
+                return RedirectToAction("Index");
+            }
+
             SetViewBags();
             List<BlogPostDataModel> blogPostDataModels = new List<BlogPostDataModel>();
 
@@ -152,47 +156,6 @@ namespace BlogCoreEngine.Controllers
             SetViewBags();
 
             return View(settingViewModel);
-        }
-
-        // Private
-
-        private async void SetIdentity()
-        {
-            accountDbContext.Database.EnsureCreated();
-
-            if(!await this.roleManager.RoleExistsAsync("Administrator"))
-            {
-                await this.roleManager.CreateAsync(new IdentityRole("Administrator"));
-            }
-
-            if(this.accountDbContext.Users.Count() <= 0)
-            {
-                ApplicationUser adminUser = new ApplicationUser();
-                adminUser.UserName = "Admin";
-                adminUser.Email = "default@default.com";
-
-                await this.userManager.CreateAsync(adminUser, "adminPassword");
-                await this.userManager.AddToRoleAsync(adminUser, "Administrator");
-            }
-
-            await this.applicationDbContext.SaveChangesAsync();
-        }
-
-        private async void SetDatabase()
-        {
-            applicationDbContext.Database.EnsureCreated();
-
-            if (this.applicationDbContext.Settings.Count() <= 0)
-            {
-                this.applicationDbContext.Settings.Add(new SettingDataModel
-                {
-                    Title = "BlogCoreEngine",
-                    Logo = System.IO.File.ReadAllBytes(".//wwwroot//images//Logo.png")
-                });
-            }
-            await this.applicationDbContext.SaveChangesAsync();
-
-            SetIdentity();
         }
 
         private void SetViewBags()
