@@ -29,9 +29,7 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
   
 # Images
 
-<p align="center">
   <img src="1.PNG" width="350" title="hover text">
   <img src="2.PNG" width="350" alt="accessibility text">
-</p>
 
 
