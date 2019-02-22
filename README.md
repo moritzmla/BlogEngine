@@ -5,7 +5,7 @@ A simple open source BlogEngine written in .NET Core 2.2
 You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download) and the Microsoft Sql Server (Download: https://www.microsoft.com/en-au/sql-server/sql-server-downloads *Free Developer Version)
 
 # Important
-- Make you own Account
+- Make your own Account
 
 - Login into the Admin Account
   - UserName: Admin
