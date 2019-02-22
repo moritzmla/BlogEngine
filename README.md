@@ -9,7 +9,7 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
 
 - Login into the Admin Account
   - UserName: Admin
-  - Password adminPassword
+  - Password: adminPassword
 
 - Go into the Admin Panel > Users
 
