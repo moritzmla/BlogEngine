@@ -26,5 +26,9 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
 - Admin Panel
   - Change Blog Name
   - Change Blog Logo
+  
+# Images
+
+![alt text](https://raw.githubusercontent.com/cetoxx/BlogCoreEngine/branch/path/to/1.PNG)
 
 
