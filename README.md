@@ -30,10 +30,10 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
 # Images
 
   <img src="1.PNG" width="850">
-  <img src="2.PNG" width="850">
-  <img src="3.PNG" width="850">
-  <img src="4.PNG" width="850">
-  <img src="5.PNG" width="850">
-  <img src="6.PNG" width="850">
+  <img style="margin-top: 20px" src="2.PNG" width="850">
+  <img style="margin-top: 20px" src="3.PNG" width="850">
+  <img style="margin-top: 20px" src="4.PNG" width="850">
+  <img style="margin-top: 20px" src="5.PNG" width="850">
+  <img style="margin-top: 20px" src="6.PNG" width="850">
 
 
