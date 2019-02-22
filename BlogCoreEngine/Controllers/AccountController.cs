@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BlogCoreEngine.Controllers
 {
@@ -29,33 +30,36 @@ namespace BlogCoreEngine.Controllers
             this.signInManager = _signInManager;
         }
 
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            base.OnActionExecuted(context);
+            SetViewBags();
+        }
+
         public IActionResult Login()
         {
-            SetViewBags();
-
             return View();
         }
 
         public IActionResult Register()
         {
-            SetViewBags();
-
             return View();
         }
 
         public IActionResult Profil(string id)
         {
-            SetViewBags();
+            ApplicationUser applicationUser = this.userManager.Users.FirstOrDefault(u => u.Id == id);
 
-            return View();
+            ViewBag.ProfilName = applicationUser.UserName;
+            ViewBag.ProfilBlogPostCount = this.applicationDbContext.BlogPosts.Where(bp => bp.CreatorId == id).Count();
+            ViewBag.ProfilCommentCount = this.applicationDbContext.Comments.Where(c => c.CreatorId == id).Count();
+
+            return View(this.applicationDbContext.BlogPosts.Where(bp => bp.CreatorId == id).ToList());
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Register(RegisterViewModel registerViewModel)
         {
-            SetViewBags();
-
             if (ModelState.IsValid)
             {
                 if(registerViewModel.Password.Equals(registerViewModel.ConfirmPassword))
@@ -86,12 +90,9 @@ namespace BlogCoreEngine.Controllers
             return View(registerViewModel);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Login(LoginViewModel loginViewModel)
         {
-            SetViewBags();
-
             if (ModelState.IsValid)
             {
                 var result = signInManager.PasswordSignInAsync(loginViewModel.UserName, loginViewModel.Password, loginViewModel.RememberMe, false).Result;
@@ -115,6 +116,8 @@ namespace BlogCoreEngine.Controllers
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return RedirectToAction("Index", "Home");
         }
+
+        // Private
 
         private void SetViewBags()
         {

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace BlogCoreEngine.Controllers
@@ -34,17 +35,19 @@ namespace BlogCoreEngine.Controllers
             this.roleManager = _roleManager;
         }
 
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            base.OnActionExecuted(context);
+            SetViewBags();
+        }
+
         public IActionResult Index()
         {
-            SetViewBags();
-
             return View(this.applicationDbContext.BlogPosts.ToList());
         }
 
         public IActionResult NoAccess()
         {
-            SetViewBags();
-
             return View();
         }
 
@@ -56,7 +59,6 @@ namespace BlogCoreEngine.Controllers
                 return RedirectToAction("Index");
             }
 
-            SetViewBags();
             List<BlogPostDataModel> blogPostDataModels = new List<BlogPostDataModel>();
 
             foreach(BlogPostDataModel bpdm in this.applicationDbContext.BlogPosts.Where(bp => bp.Title.ToLower().Contains(searchString.ToLower())).ToList())
@@ -81,16 +83,12 @@ namespace BlogCoreEngine.Controllers
         [Authorize(Roles = "Administrator")]
         public IActionResult Users()
         {
-            SetViewBags();
-
             return View(accountDbContext.Users.ToList());
         }
 
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> SetAdmin(string id)
         {
-            SetViewBags();
-
             await this.userManager.AddToRoleAsync(await userManager.FindByIdAsync(id), "Administrator");
             this.accountDbContext.SaveChanges();
 
@@ -100,8 +98,6 @@ namespace BlogCoreEngine.Controllers
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            SetViewBags();
-
             await this.userManager.DeleteAsync(await userManager.FindByIdAsync(id));
             this.accountDbContext.SaveChanges();
 
@@ -111,16 +107,12 @@ namespace BlogCoreEngine.Controllers
         [Authorize(Roles = "Administrator")]
         public IActionResult AdminPanel()
         {
-            SetViewBags();
-
             return View();
         }
 
         [Authorize(Roles = "Administrator")]
         public IActionResult Settings()
         {
-            SetViewBags();
-
             SettingDataModel settingDataModel = applicationDbContext.Settings.FirstOrDefault(o => o.Id == 1);
 
             SettingViewModel settingViewModel = new SettingViewModel();
@@ -130,8 +122,7 @@ namespace BlogCoreEngine.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult Settings(SettingViewModel settingViewModel)
         {
             SettingDataModel settingDataModel = applicationDbContext.Settings.FirstOrDefault(o => o.Id == 1);
@@ -153,10 +144,10 @@ namespace BlogCoreEngine.Controllers
                 this.applicationDbContext.SaveChanges();
             }
 
-            SetViewBags();
-
             return View(settingViewModel);
         }
+
+        // Private
 
         private void SetViewBags()
         {

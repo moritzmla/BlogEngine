@@ -10,6 +10,7 @@ using BlogCoreEngine.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BlogCoreEngine.Controllers
 {
@@ -31,10 +32,14 @@ namespace BlogCoreEngine.Controllers
             this.roleManager = _roleManager;
         }
 
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            base.OnActionExecuted(context);
+            SetViewBags();
+        }
+
         public IActionResult DetailsBlogPost(int id, BigViewModel bigViewModel)
         {
-            SetViewBags();
-
             bigViewModel.BlogPostDataModel = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
             if (bigViewModel.BlogPostDataModel != null)
@@ -53,8 +58,6 @@ namespace BlogCoreEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> NewComment(int id, BigViewModel bigViewModel)
         {
-            SetViewBags();
-
             if (bigViewModel.CommentViewModel.Content == null || bigViewModel.CommentViewModel.Content.Length <= 0)
             {
                 ModelState.AddModelError("", "Text field is required!");
@@ -90,8 +93,6 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteComment(int id)
         {
-            SetViewBags();
-
             CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
 
             if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId) || this.User.IsInRole("Administrator")))
@@ -118,8 +119,6 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public IActionResult EditComment(int id)
         {
-            SetViewBags();
-
             CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
 
             if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId) || this.User.IsInRole("Administrator")))
@@ -134,8 +133,6 @@ namespace BlogCoreEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> EditComment(int id, CommentViewModel editViewModel)
         {
-            SetViewBags();
-            
             if (ModelState.IsValid)
             {
                 CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
@@ -152,8 +149,6 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public IActionResult EditBlogPost(int id)
         {
-            SetViewBags();
-
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
             if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(target.CreatorId) || this.User.IsInRole("Administrator")))
@@ -172,18 +167,13 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public IActionResult NewBlogPost()
         {
-            SetViewBags();
-
             return View();
         }
 
         [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult EditBlogPost(int id, BlogPostViewModel blogPostViewModel)
         {
-            SetViewBags();
-
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
             if (ModelState.IsValid)
@@ -209,12 +199,9 @@ namespace BlogCoreEngine.Controllers
         }
 
         [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public IActionResult NewBlogPost(BlogPostViewModel blogPostViewModel)
         {
-            SetViewBags();
-
             if (ModelState.IsValid)
             {
                 this.applicationDbContext.BlogPosts.Add(new BlogPostDataModel
@@ -240,8 +227,6 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteBlogPost(int id)
         {
-            SetViewBags();
-
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
             if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(target.CreatorId) || this.User.IsInRole("Administrator")))
@@ -262,6 +247,8 @@ namespace BlogCoreEngine.Controllers
             await this.applicationDbContext.SaveChangesAsync();
             return RedirectToAction("Index", "Home");
         }
+
+        // Private
 
         private void SetViewBags()
         {
