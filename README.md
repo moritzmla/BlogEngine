@@ -29,6 +29,6 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
   
 # Images
 
-![alt text](https://raw.githubusercontent.com/cetoxx/BlogCoreEngine/path/to/1.PNG)
+![alt text](https://raw.githubusercontent.com/cetoxx/BlogCoreEngine/to/1.PNG)
 
 
