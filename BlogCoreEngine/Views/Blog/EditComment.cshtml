@@ -1,10 +1,10 @@
-﻿@model BlogCoreEngine.Models.DataModels.CommentDataModel
+﻿@model BlogCoreEngine.Models.ViewModels.CommentViewModel
 
 @{
 }
 
 <div class="container">
-    <form asp-controller="Blog" asp-action="EditComment" asp-route-id="@Model.Id" method="post">
+    <form asp-controller="Blog" asp-action="EditComment" method="post">
 
         <div class="form-group">
             <label asp-for="Content"></label>

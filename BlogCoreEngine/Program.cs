@@ -77,7 +77,7 @@ namespace BlogCoreEngine
                 }
             } catch { }
 
-            await host.RunAsync();
+             await host.RunAsync();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

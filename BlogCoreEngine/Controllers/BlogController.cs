@@ -53,7 +53,9 @@ namespace BlogCoreEngine.Controllers
         [HttpPost]
         public async Task<IActionResult> NewComment(int id, BigViewModel bigViewModel)
         {
-            if(bigViewModel.CommentViewModel.Content == null || bigViewModel.CommentViewModel.Content.Length <= 0)
+            SetViewBags();
+
+            if (bigViewModel.CommentViewModel.Content == null || bigViewModel.CommentViewModel.Content.Length <= 0)
             {
                 ModelState.AddModelError("", "Text field is required!");
 
@@ -88,6 +90,8 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteComment(int id)
         {
+            SetViewBags();
+
             CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
 
             if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId) || this.User.IsInRole("Administrator")))
@@ -118,25 +122,31 @@ namespace BlogCoreEngine.Controllers
 
             CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
 
-            if(!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId) || this.User.IsInRole("Administrator")))
+            if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(commentDataModel.CreatorId) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
 
-            return View(commentDataModel);
+            return View(new CommentViewModel { Content = commentDataModel.Content });
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> EditComment(int id, CommentDataModel editDataModel)
+        public async Task<IActionResult> EditComment(int id, CommentViewModel editViewModel)
         {
-            CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
-            commentDataModel.Content = editDataModel.Content;
+            SetViewBags();
+            
+            if (ModelState.IsValid)
+            {
+                CommentDataModel commentDataModel = this.applicationDbContext.Comments.FirstOrDefault(c => c.Id == id);
+                commentDataModel.Content = editViewModel.Content;
+                this.applicationDbContext.Update(commentDataModel);
+                await this.applicationDbContext.SaveChangesAsync();
 
-            this.applicationDbContext.Update(commentDataModel);
-            await this.applicationDbContext.SaveChangesAsync();
+                return RedirectToAction("Index", "Home");
+            }
 
-            return RedirectToAction("Index", "Home");
+            return View(editViewModel);
         }
 
         [Authorize]
@@ -172,6 +182,8 @@ namespace BlogCoreEngine.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult EditBlogPost(int id, BlogPostViewModel blogPostViewModel)
         {
+            SetViewBags();
+
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
             if (ModelState.IsValid)
@@ -201,6 +213,8 @@ namespace BlogCoreEngine.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult NewBlogPost(BlogPostViewModel blogPostViewModel)
         {
+            SetViewBags();
+
             if (ModelState.IsValid)
             {
                 this.applicationDbContext.BlogPosts.Add(new BlogPostDataModel
@@ -226,6 +240,8 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteBlogPost(int id)
         {
+            SetViewBags();
+
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
             if (!(this.User.FindFirstValue(ClaimTypes.NameIdentifier).Equals(target.CreatorId) || this.User.IsInRole("Administrator")))

@@ -54,7 +54,9 @@ namespace BlogCoreEngine.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Register(RegisterViewModel registerViewModel)
         {
-            if(ModelState.IsValid)
+            SetViewBags();
+
+            if (ModelState.IsValid)
             {
                 if(registerViewModel.Password.Equals(registerViewModel.ConfirmPassword))
                 {
@@ -88,7 +90,9 @@ namespace BlogCoreEngine.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Login(LoginViewModel loginViewModel)
         {
-            if(ModelState.IsValid)
+            SetViewBags();
+
+            if (ModelState.IsValid)
             {
                 var result = signInManager.PasswordSignInAsync(loginViewModel.UserName, loginViewModel.Password, loginViewModel.RememberMe, false).Result;
 
