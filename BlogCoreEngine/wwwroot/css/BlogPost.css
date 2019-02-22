@@ -2,10 +2,23 @@
 
 #BlogPosts li {
     width: 96%;
-    margin: auto;
-    padding: 15px;
+    padding: 10px;
     display: inherit;
+    margin: auto;
     border: 0.5px solid lightgray;
+}
+
+#BlogPosts .BlogMain {
+    display: flex;
+    flex-direction: row;
+}
+
+#BlogPosts .BlogCover {
+    border-radius: 1px;
+    margin-right: 20px;
+}
+
+#BlogPosts .BlogContent {
 }
 
 #BlogPosts li:hover {

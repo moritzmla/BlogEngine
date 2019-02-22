@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using BlogCoreEngine.Data.ApplicationData;
 using BlogCoreEngine.Models.DataModels;
 using BlogCoreEngine.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -161,6 +163,8 @@ namespace BlogCoreEngine.Controllers
             blogPostViewModel.Preview = target.Preview;
             blogPostViewModel.Content = target.Content;
 
+            ViewBag.CoverToBytes = target.Cover;
+
             return View(blogPostViewModel);
         }
 
@@ -172,7 +176,7 @@ namespace BlogCoreEngine.Controllers
 
         [Authorize]
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult EditBlogPost(int id, BlogPostViewModel blogPostViewModel)
+        public IActionResult EditBlogPost(int id, BlogPostViewModel blogPostViewModel, IFormFile _formFile)
         {
             BlogPostDataModel target = this.applicationDbContext.BlogPosts.FirstOrDefault(bp => bp.Id == id);
 
@@ -184,6 +188,11 @@ namespace BlogCoreEngine.Controllers
                     target.Preview = blogPostViewModel.Preview;
                     target.Content = blogPostViewModel.Content;
                     target.LastChangeDate = DateTime.Now;
+
+                    if(_formFile != null)
+                    {
+                        target.Cover = FileToByteArray(_formFile);
+                    }
                 }
 
                 this.applicationDbContext.BlogPosts.Update(target);
@@ -200,18 +209,25 @@ namespace BlogCoreEngine.Controllers
 
         [Authorize]
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult NewBlogPost(BlogPostViewModel blogPostViewModel)
+        public IActionResult NewBlogPost(BlogPostViewModel blogPostViewModel, IFormFile _formFile)
         {
             if (ModelState.IsValid)
             {
-                this.applicationDbContext.BlogPosts.Add(new BlogPostDataModel
+                if (_formFile == null)
                 {
+                    ModelState.AddModelError("", "You need a Cover");
+                    return View(blogPostViewModel);
+                }
+
+                this.applicationDbContext.BlogPosts.Add(new BlogPostDataModel
+                { 
                     Title = blogPostViewModel.Title,
                     Preview = blogPostViewModel.Preview,
                     Content = blogPostViewModel.Content,
                     UploadDate = DateTime.Now,
                     Views = 1,
                     Comments = 0,
+                    Cover = FileToByteArray(_formFile),
                     LastChangeDate = DateTime.Now,
                     CreatorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier),
                     CreatorName = HttpContext.User.Identity.Name
@@ -249,6 +265,15 @@ namespace BlogCoreEngine.Controllers
         }
 
         // Private
+
+        private byte[] FileToByteArray(IFormFile _formFile)
+        {
+            using(MemoryStream _memoryStream = new MemoryStream())
+            {
+                _formFile.CopyTo(_memoryStream);
+                return _memoryStream.ToArray();
+            }
+        }
 
         private void SetViewBags()
         {

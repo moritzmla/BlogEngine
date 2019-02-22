@@ -217,6 +217,12 @@ label {
     text-transform: uppercase;
 }
 
+input[type=file] {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+
 /* Link */
 
 a {

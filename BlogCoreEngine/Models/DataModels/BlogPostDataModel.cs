@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace BlogCoreEngine.Models.DataModels
 
         [Required]
         public string Title { get; set; }
+
+        public byte[] Cover { get; set; }
 
         [Required]
         public string Preview { get; set; }

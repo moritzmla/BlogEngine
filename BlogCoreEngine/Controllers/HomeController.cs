@@ -118,6 +118,8 @@ namespace BlogCoreEngine.Controllers
             SettingViewModel settingViewModel = new SettingViewModel();
             settingViewModel.Title = settingDataModel.Title;
 
+            ViewBag.LogoToBytes = settingDataModel.Logo;
+
             return View(settingViewModel);
         }
 
@@ -143,6 +145,8 @@ namespace BlogCoreEngine.Controllers
                 this.applicationDbContext.Update(settingDataModel);
                 this.applicationDbContext.SaveChanges();
             }
+
+            ViewBag.LogoToBytes = settingDataModel.Logo;
 
             return View(settingViewModel);
         }
