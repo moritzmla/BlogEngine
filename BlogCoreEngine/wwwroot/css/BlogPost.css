@@ -1,7 +1,7 @@
 ﻿/* BlogPosts */
 
 #BlogPosts li {
-    width: 96%;
+    width: 97.5%;
     padding: 10px;
     display: inherit;
     margin: auto;
@@ -36,6 +36,11 @@
 }
 
 #BlogPosts .content {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+#BlogPosts .preview {
     margin-top: 10px;
 }
 

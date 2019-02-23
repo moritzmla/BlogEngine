@@ -11,12 +11,12 @@
     <hr />
 
     <div class="headline">
-        <a asp-controller="Account" asp-action="Profil" asp-route-id="@Model.BlogPostDataModel.CreatorId">von @(char.ToUpper(Model.BlogPostDataModel.CreatorName[0]) + Model.BlogPostDataModel.CreatorName.Substring(1))</a>
+        <a asp-controller="Account" asp-action="Profil" asp-route-id="@Model.BlogPostDataModel.CreatorId">posted by @(char.ToUpper(Model.BlogPostDataModel.CreatorName[0]) + Model.BlogPostDataModel.CreatorName.Substring(1))</a>
         <h2 style="color: gray; margin-left: 10px;">@Model.BlogPostDataModel.LastChangeDate.ToString("dd.MM.yyyy · HH:mm")</h2>
     </div>
 
     <div class="content">
-        <p>@Model.BlogPostDataModel.Content</p>
+        @Html.Raw(Model.BlogPostDataModel.Content.Replace(Environment.NewLine, "<br />"))
     </div>
 
     <div class="underline">
@@ -55,7 +55,7 @@
                 </div>
 
                 <div class="content">
-                    <p>@commentDataModel.Content</p>
+                    @Html.Raw(commentDataModel.Content.Replace(Environment.NewLine, "<br />"))
                 </div>
 
                 @if (ViewBag.CurrentUserId == commentDataModel.CreatorId || User.IsInRole("Administrator"))
