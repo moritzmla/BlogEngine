@@ -51,8 +51,14 @@ namespace BlogCoreEngine
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseStaticFiles();
             app.UseAuthentication();
+
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseStaticFiles();
 
             app.UseMvc(routes => {
                 routes.MapRoute(

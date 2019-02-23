@@ -11,7 +11,9 @@ namespace BlogCoreEngine.Data.ApplicationData
     public class ApplicationDbContext : DbContext
     {
         public DbSet<SettingDataModel> Settings { get; set; }
+
         public DbSet<BlogPostDataModel> BlogPosts { get; set; }
+
         public DbSet<CommentDataModel> Comments { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)

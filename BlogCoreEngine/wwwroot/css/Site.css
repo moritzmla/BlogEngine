@@ -18,13 +18,22 @@ p {
 
 /* containers */
 
+.column-container {
+    display: flex;
+    flex-direction: column-reverse;
+    margin-bottom: 10px;
+}
+
 .row-container {
     width: 98.6%;
     padding: 5px;
     display: flex;
     flex-direction: row;
     border: 1px solid lightgray;
-    margin-bottom: 10px;
+}
+
+.row-container img {
+    border-radius: 50px;
 }
 
 .container {
@@ -90,6 +99,21 @@ p {
     width: 15%;
     height: 250px;
     border: 1px solid lightgray;
+}
+
+.right-container img {
+    border-radius: 50px;
+    margin: auto;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+.right-container h1 {
+    margin-top: 3px;
+}
+
+.right-container a {
+    text-align: center;
 }
 
 /* Header */
@@ -215,6 +239,11 @@ label {
     font-weight: bold;
     font-size: 10px;
     text-transform: uppercase;
+}
+
+#imageDisplay {
+    box-shadow: 0 0 20px rgba(0,0,0,0.22);
+    cursor: pointer;
 }
 
 input[type=file] {

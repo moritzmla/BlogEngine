@@ -280,9 +280,13 @@ namespace BlogCoreEngine.Controllers
             ViewBag.Title = this.applicationDbContext.Settings.FirstOrDefault(o => o.Id == 1).Title;
             ViewBag.Logo = this.applicationDbContext.Settings.FirstOrDefault(o => o.Id == 1).Logo;
 
-            ViewBag.CurrentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            ViewBag.UserBlogPostCount = this.applicationDbContext.BlogPosts.Where(bp => bp.CreatorId == this.User.FindFirstValue(ClaimTypes.NameIdentifier)).Count();
-            ViewBag.UserCommentCount = this.applicationDbContext.Comments.Where(c => c.CreatorId == this.User.FindFirstValue(ClaimTypes.NameIdentifier)).Count();
+            if (this.User.Identity.IsAuthenticated)
+            {
+                ViewBag.CurrentUserId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                ViewBag.CurrentUserPicture = this.accountDbContext.Users.FirstOrDefault(u => u.Id == this.User.FindFirstValue(ClaimTypes.NameIdentifier)).Image;
+                ViewBag.UserBlogPostCount = this.applicationDbContext.BlogPosts.Where(bp => bp.CreatorId == this.User.FindFirstValue(ClaimTypes.NameIdentifier)).Count();
+                ViewBag.UserCommentCount = this.applicationDbContext.Comments.Where(c => c.CreatorId == this.User.FindFirstValue(ClaimTypes.NameIdentifier)).Count();
+            }
         }
     }
 }

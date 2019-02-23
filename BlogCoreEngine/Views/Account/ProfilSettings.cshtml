@@ -1,14 +1,18 @@
-﻿@model BlogCoreEngine.Models.ViewModels.CommentViewModel
+﻿@model BlogCoreEngine.Models.ViewModels.ProfilViewModel
 
 @{
+
 }
 
 <div class="container">
-    <form asp-controller="Blog" asp-action="EditComment" method="post">
+    <form asp-controller="Account" asp-action="ProfilSettings" enctype="multipart/form-data">
 
         <div class="form-group">
-            <label asp-for="Content"></label>
-            <textarea style="height: 100px" asp-for="Content">@Model.Content</textarea>
+            <label asp-for="ProfilPicture"></label>
+            <label for="imageInput">
+                <img id="imageDisplay" src="data:image;base64,@System.Convert.ToBase64String(ViewBag.CurrentUserPicture)" alt="COVER" height="200" width="200" />
+                <input id="imageInput" asp-for="ProfilPicture" />
+            </label>
         </div>
 
         <input class="clickLink" type="submit" value="Save" />
@@ -27,3 +31,4 @@
         <h1>Comments: <strong>@ViewBag.UserCommentCount</strong></h1>
     </div>
 }
+

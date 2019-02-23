@@ -26,14 +26,17 @@ namespace BlogCoreEngine
         public static async Task MainAsync(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
+
             try
             {
                 using(var scope = host.Services.CreateScope())
                 {
-                    using(var accountContext = scope.ServiceProvider.GetService<AccountDbContext>())
+                    
+                    using (var accountContext = scope.ServiceProvider.GetService<AccountDbContext>())
                     {
                         await accountContext.Database.EnsureCreatedAsync();
-                        using(var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>())
+
+                        using (var roleManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>())
                         {
                             if (!await roleManager.RoleExistsAsync("Administrator"))
                             {
@@ -53,6 +56,7 @@ namespace BlogCoreEngine
                                 ApplicationUser adminUser = new ApplicationUser();
                                 adminUser.UserName = "Admin";
                                 adminUser.Email = "default@default.com";
+                                adminUser.Image = System.IO.File.ReadAllBytes(".//wwwroot//images//ProfilPicture.png");
 
                                 await userManager.CreateAsync(adminUser, "adminPassword");
                                 await userManager.AddToRoleAsync(adminUser, "Administrator");
@@ -64,6 +68,7 @@ namespace BlogCoreEngine
                     using (var applicationContext = scope.ServiceProvider.GetService<ApplicationDbContext>())
                     {
                         await applicationContext.Database.EnsureCreatedAsync();
+
                         if (applicationContext.Settings.Count() <= 0)
                         {
                             applicationContext.Settings.Add(new SettingDataModel
@@ -74,6 +79,7 @@ namespace BlogCoreEngine
                         }
                         await applicationContext.SaveChangesAsync();
                     }
+
                 }
             } catch { }
 
