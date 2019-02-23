@@ -39,12 +39,12 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
   
   <hr />
   
-  Details 
+  New Post 
   <img src="3.PNG" width="850">
   
   <hr />
   
-  Admin Panel
+  Profil
   <img src="4.PNG" width="850">
   
   <hr />
