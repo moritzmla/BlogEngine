@@ -29,12 +29,12 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
   
 # Images
 
-   New Post
+   Index
   <img src="1.PNG" width="850">
   
   <hr />
   
-  Display in Index
+  Details
   <img src="2.PNG" width="850">
   
   <hr />
