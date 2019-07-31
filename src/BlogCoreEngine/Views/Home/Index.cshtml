@@ -1,0 +1,52 @@
+﻿@model BlogCoreEngine.ViewModels.SearchViewModel
+
+@{
+    var TopToday = Model.Posts.OrderByDescending(x => x.Views).Take(3).Where(x => x.Created.Date == DateTime.Today);
+}
+
+<div class="row-c">
+    <ul>
+        @if (!Model.Posts.Any())
+        {
+            <div class="container" style="margin-top: 26px">
+                <h1>No Posts found!</h1>
+            </div>
+        }
+        else
+        {
+            <h1 class="bubble">Top 3 Today</h1>
+            @foreach (var post in TopToday)
+            {
+                <li>
+                    @{ await Html.RenderPartialAsync("_PostPartial", post); }
+                </li>
+            }
+
+            <h1 class="bubble">Last Posts</h1>
+            @foreach (var post in Model.Posts.Take(20))
+            {
+                @if (!TopToday.Contains(post))
+                {
+                    <li>
+                        @{ await Html.RenderPartialAsync("_PostPartial", post); }
+                    </li>
+                }
+            }
+        }
+    </ul>
+
+    <div class="container" style="margin-left: 10px; width: 200px; height: 200px; margin-top: 26px">
+        <h1 class="bubble">Top 5 Blogs</h1>
+
+        @foreach (var blog in Model.Blogs.OrderByDescending(x => x.Posts.Count).Take(5))
+        {
+            <a class="clickLink" asp-controller="Blog" asp-action="View" asp-route-id="@blog.Id">@blog.Name - @blog.Posts.Count Posts</a>
+        }
+    </div>
+</div>
+
+
+
+
+
+
