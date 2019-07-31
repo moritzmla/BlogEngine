@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using BlogCoreEngine.Core.Entities;
 using BlogCoreEngine.DataAccess.Data;
+using BlogCoreEngine.DataAccess.Extensions;
 using BlogCoreEngine.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +37,7 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public IActionResult Settings(string id)
         {
-            if (id != this.User.Identity.Name)
+            if (id != this.User.Identity.GetAuthorName())
             {
                 return RedirectToAction("NoAccess", "Home");
             }

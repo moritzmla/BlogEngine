@@ -27,6 +27,10 @@ body {
 
 /* containers */
 
+form {
+    min-width: 700px;
+}
+
 .row-c {
     display: flex;
     flex-direction: row;

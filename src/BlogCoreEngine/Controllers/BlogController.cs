@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BlogCoreEngine.Core.Entities;
 using BlogCoreEngine.DataAccess.Data;
+using BlogCoreEngine.Web.Extensions;
 using BlogCoreEngine.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -59,7 +60,7 @@ namespace BlogCoreEngine.Controllers
                     Id = blogId,
                     Name = blog.Name,
                     Description = blog.Description,
-                    Cover = FileToByteArray(blog.Cover),
+                    Cover = blog.Cover.ToByteArray(),
                     Created = DateTime.Now,
                     Modified = DateTime.Now
                 });
@@ -93,7 +94,7 @@ namespace BlogCoreEngine.Controllers
 
                 if (!(formFile == null || formFile.Length <= 0))
                 {
-                    target.Cover = FileToByteArray(formFile);
+                    target.Cover = formFile.ToByteArray();
                 }
 
                 this.applicationContext.Blogs.Update(target);
@@ -120,19 +121,6 @@ namespace BlogCoreEngine.Controllers
             this.applicationContext.SaveChanges();
 
             return RedirectToAction("Index", "Home");
-        }
-
-        #endregion
-
-        #region Methods
-
-        private byte[] FileToByteArray(IFormFile _formFile)
-        {
-            using (MemoryStream _memoryStream = new MemoryStream())
-            {
-                _formFile.CopyTo(_memoryStream);
-                return _memoryStream.ToArray();
-            }
         }
 
         #endregion

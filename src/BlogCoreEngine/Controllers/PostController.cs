@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using BlogCoreEngine.Core.Entities;
 using BlogCoreEngine.DataAccess.Data;
+using BlogCoreEngine.DataAccess.Extensions;
+using BlogCoreEngine.Web.Extensions;
 using BlogCoreEngine.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,20 +29,12 @@ namespace BlogCoreEngine.Controllers
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
-        private ApplicationUser currentUser { get; set; }
-
         public PostController(ApplicationDbContext applicationContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             this.applicationContext = applicationContext;
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.roleManager = roleManager;
-        }
-
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            base.OnActionExecuting(context);
-            this.currentUser = this.userManager.FindByIdAsync(this.User.FindFirstValue(ClaimTypes.NameIdentifier)).Result;
         }
 
         #region Pin
@@ -85,7 +79,7 @@ namespace BlogCoreEngine.Controllers
         {
             PostDataModel target = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
 
-            if (!(currentUser.AuthorId.Equals(target.AuthorId) || this.User.IsInRole("Administrator")))
+            if (!(User.Identity.GetAuthorId() == target.AuthorId || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
@@ -94,7 +88,7 @@ namespace BlogCoreEngine.Controllers
         }
 
         [Authorize, HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, PostDataModel postDataModel, IFormFile _formFile)
+        public IActionResult Edit(Guid id, PostDataModel postDataModel, IFormFile formFile)
         {
             PostDataModel post = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
 
@@ -108,9 +102,9 @@ namespace BlogCoreEngine.Controllers
                     post.Modified = DateTime.Now;
                     post.Link = postDataModel.Link;
 
-                    if (_formFile != null)
+                    if (formFile != null)
                     {
-                        post.Cover = FileToByteArray(_formFile);
+                        post.Cover = formFile.ToByteArray();
                     }
                 }
 
@@ -147,7 +141,7 @@ namespace BlogCoreEngine.Controllers
                 await this.applicationContext.Posts.AddAsync(new PostDataModel
                 {
                     Id = postId,
-                    AuthorId = this.currentUser.AuthorId,
+                    AuthorId = User.Identity.GetAuthorId(),
                     BlogId = id,
                     Created = DateTime.Now,
                     Modified = DateTime.Now
@@ -214,7 +208,7 @@ namespace BlogCoreEngine.Controllers
         {
             PostDataModel target = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
 
-            if (!(currentUser.AuthorId.Equals(target.Author.Id) || this.User.IsInRole("Administrator")))
+            if (!((User.Identity.GetAuthorId() == target.Author.Id) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
@@ -235,9 +229,8 @@ namespace BlogCoreEngine.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             PostDataModel target = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
-            ApplicationUser author = this.applicationContext.Users.FirstOrDefault(x => x.AuthorId == target.AuthorId);
 
-            if (!(currentUser.AuthorId.Equals(target.Author.Id) || this.User.IsInRole("Administrator")))
+            if (!((User.Identity.GetAuthorId() == target.Author.Id) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
@@ -245,26 +238,10 @@ namespace BlogCoreEngine.Controllers
             if (target != null)
             {
                 this.applicationContext.Comments.RemoveRange(target.Comments);
-                this.applicationContext.Users.Update(author);
-                this.applicationContext.Posts.Remove(target);
-
                 await this.applicationContext.SaveChangesAsync();
             }
 
             return RedirectToAction("View", "Blog", new { id = target.BlogId });
-        }
-
-        #endregion
-
-        #region Methods
-
-        private byte[] FileToByteArray(IFormFile _formFile)
-        {
-            using(MemoryStream _memoryStream = new MemoryStream())
-            {
-                _formFile.CopyTo(_memoryStream);
-                return _memoryStream.ToArray();
-            }
         }
 
         #endregion
