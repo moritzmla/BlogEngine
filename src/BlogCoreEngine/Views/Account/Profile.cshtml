@@ -26,19 +26,24 @@
             <img src="data:image;base64,@System.Convert.ToBase64String(Model.Image)" height="110" width="110" />
         </div>
 
-        <div style="margin-bottom: 10px; padding-top: 10px" class="row-container">
+        <div style="margin-bottom: 10px; padding-top: 10px; width: 100%;" class="row-container container">
             <div style="margin-left: 20px">
-                <h1 style="margin-bottom: 30px"><strong>@Model.Name</strong></h1>
+
+                <div class="row-c">
+                    <h1 style="margin-bottom: 30px"><strong>@Model.Name</strong></h1>
+
+
+                    @if (User.Identity.Name == Model.Name)
+                    {
+                        <div style="height: 22px; margin-left: 20px;" class="column-container">
+                            <a class="clickLink" asp-controller="Account" asp-action="Settings" asp-route-id="@Model.Name">Settings</a>
+                        </div>
+                    }
+                </div>
+
                 <h3 style="color: gray; font-size: 14px">Posts: <strong>@Model.Posts.Count()</strong></h3>
                 <h3 style="color: gray; font-size: 14px">Comments: <strong>@Model.Comments.Count()</strong></h3>
             </div>
-
-            @if (User.Identity.Name == Model.Name)
-            {
-                <div style="margin-left: 30px" class="column-container">
-                    <a class="clickLink" asp-controller="Account" asp-action="Settings" asp-route-id="@Model.Name">Settings</a>
-                </div>
-            }
         </div>
     </div>
 </div>

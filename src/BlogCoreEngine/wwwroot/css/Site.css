@@ -28,12 +28,17 @@ body {
 /* containers */
 
 form {
-    min-width: 700px;
+    min-width: 750px;
 }
 
 .row-c {
     display: flex;
     flex-direction: row;
+}
+
+.column-c {
+    display: flex;
+    flex-direction: column;
 }
 
 .column-container {
@@ -46,8 +51,11 @@ form {
     padding: 5px;
     display: flex;
     flex-direction: row;
-    border: 1px solid lightgray;
     border-radius: 2.5px;
+}
+
+.admin-container {
+    min-width: 750px;
 }
 
 .row-container img {
@@ -55,10 +63,10 @@ form {
 }
 
 .container {
+    box-shadow: 0px 0px 5px 0px rgba(211,211,211, 1);
     padding: 15px;
     display: flex;
     flex-direction: column;
-    border: 1px solid lightgray;
     border-radius: 2.5px;
 }
 
@@ -103,7 +111,6 @@ form {
     padding: 15px;
     margin-right: 30px;
     width: 15%;
-    border: 1px solid lightgray;
     border-radius: 2.5px;
 }
 
@@ -147,7 +154,7 @@ form {
 /* Header */
 
 header {
-    box-shadow: 0 0 10px rgba(0,0,0,0.22);
+    box-shadow: 0px 0px 5px 0px rgba(211,211,211, 1);
     height: 70px;
     margin-bottom: 30px;
 }
@@ -177,16 +184,17 @@ header .branding {
 header .searchbar {
     float: left;
     margin-left: 50px;
+    margin-right: 20px;
     margin-top: 15px;
+    width: 40%;
 }
 
 header .searchbar input {
-    position: relative;
-    width: 500px;
     background: transparent;
     padding-left: 45px;
     height: 30px;
     border: none;
+    width: 100%;
 }
 
 header .searchbar img {
@@ -233,7 +241,7 @@ header .navigator li {
 
 footer {
     background-color: black;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.22);
+    box-shadow: 0px 0px 5px 0px rgba(211,211,211, 1);
     width: 70%;
     margin: auto;
     margin-top: 50px;
@@ -284,12 +292,12 @@ input[type=submit] {
     cursor: pointer;
 }
 
-input[type=text], input[type=password], input[type=email], input[type=datetime] {
+input[type=text], input[type=password], input[type=email], input[type=datetime], input[type=url] {
     border: none;
     padding: 5px;
     padding-left: 10px;
     background-color: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.22);
+    box-shadow: 0px 0px 5px 0px rgba(224,224,224, 1);
     border-left: 2.5px solid black;
 }
 
@@ -298,7 +306,7 @@ textarea {
     padding: 5px;
     padding-left: 10px;
     background-color: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.22);
+    box-shadow: 0px 0px 5px 0px rgba(224,224,224, 1);
     resize: none;
     height: 400px;
     border-left: 2.5px solid black;
@@ -311,19 +319,19 @@ label {
 }
 
 #imageDisplay {
-    box-shadow: 0 0 20px rgba(0,0,0,0.22);
+    box-shadow: 0px 0px 5px 0px rgba(224,224,224, 1);
     cursor: pointer;
     object-fit: scale-down;
 }
 
 #imageDisplay2 {
-    box-shadow: 0 0 20px rgba(0,0,0,0.22);
+    box-shadow: 0px 0px 5px 0px rgba(224,224,224, 1);
     cursor: pointer;
     object-fit: scale-down;
 }
 
 #imageDisplay3 {
-    box-shadow: 0 0 20px rgba(0,0,0,0.22);
+    box-shadow: 0px 0px 5px 0px rgba(224,224,224, 1);
     cursor: pointer;
     object-fit: scale-down;
 }

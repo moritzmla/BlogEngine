@@ -8,7 +8,7 @@
         <ul>
             @if (!Model.Posts.Any() && !Model.Posts.Where(x => x.Pinned).Any())
             {
-                <div class="container" style="margin-top: 26.9px">
+                <div class="container" style="margin-top: 26.9px; min-width: 750px">
                     <h1>No Posts found!</h1>
                     <a class="clickLink" asp-controller="Post" asp-action="New" asp-route-id="@Model.Id">New Post</a>
                 </div>

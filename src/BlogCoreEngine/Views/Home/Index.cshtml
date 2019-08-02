@@ -1,25 +1,36 @@
 ﻿@model BlogCoreEngine.ViewModels.SearchViewModel
+@inject BlogCoreEngine.DataAccess.Data.ApplicationDbContext applicationContext;
 
+@using BlogCoreEngine.Core.Entities;
 @{
     var TopToday = Model.Posts.OrderByDescending(x => x.Views).Take(3).Where(x => x.Created.Date == DateTime.Today);
+
+    Author currentUser = null;
+    if (User.Identity.IsAuthenticated)
+    {
+        currentUser = applicationContext.Authors.FirstOrDefault(x => x.Id == User.Identity.GetAuthorId());
+    }
 }
 
 <div class="row-c">
     <ul>
         @if (!Model.Posts.Any())
         {
-            <div class="container" style="margin-top: 26px">
+            <div class="container" style="margin-top: 26px; min-width: 750px">
                 <h1>No Posts found!</h1>
             </div>
         }
         else
         {
-            <h1 class="bubble">Top 3 Today</h1>
-            @foreach (var post in TopToday)
+            @if (TopToday.Any())
             {
-                <li>
-                    @{ await Html.RenderPartialAsync("_PostPartial", post); }
-                </li>
+                <h1 class="bubble">Top 3 Today</h1>
+                @foreach (var post in TopToday)
+                {
+                    <li>
+                        @{ await Html.RenderPartialAsync("_PostPartial", post); }
+                    </li>
+                }
             }
 
             <h1 class="bubble">Last Posts</h1>
@@ -35,13 +46,27 @@
         }
     </ul>
 
-    <div class="container" style="margin-left: 10px; width: 200px; height: 200px; margin-top: 26px">
-        <h1 class="bubble">Top 5 Blogs</h1>
+    <div class="column-c" style="margin-left: 10px; width: 280px; margin-top: 26px">
 
-        @foreach (var blog in Model.Blogs.OrderByDescending(x => x.Posts.Count).Take(5))
+        @if (User.Identity.IsAuthenticated)
         {
-            <a class="clickLink" asp-controller="Blog" asp-action="View" asp-route-id="@blog.Id">@blog.Name - @blog.Posts.Count Posts</a>
+            <div class="container" style="height: 200px;">
+                <img style="height: 80px; margin-bottom: 10px" src="data:image;base64,@System.Convert.ToBase64String(currentUser.Image)" />
+                <h2 style="text-align: center"><strong>@currentUser.Name</strong></h2>
+
+                <p style="margin-top: 20px; font-size: 13px; color: gray;">Posts: @currentUser.Posts.Count()</p>
+                <p style="margin-top: 3px; font-size: 13px; color: gray;">Comments: @currentUser.Comments.Count()</p>
+            </div>
         }
+
+        <div class="container" style="height: 200px; margin-top: 15px">
+            <h1 class="bubble">Top 5 Blogs</h1>
+
+            @foreach (var blog in Model.Blogs.OrderByDescending(x => x.Posts.Count).Take(5))
+            {
+                <a class="clickLink" asp-controller="Blog" asp-action="View" asp-route-id="@blog.Id">@blog.Name - @blog.Posts.Count Posts</a>
+            }
+        </div>
     </div>
 </div>
 

@@ -14,7 +14,7 @@ namespace BlogCoreEngine.Core.Entities
 
         public PostDataModel() { }
 
-        public ILazyLoader LazyLoader { get; set; }
+        private ILazyLoader LazyLoader { get; set; }
 
         public PostDataModel(ILazyLoader lazyLoader)
         {
@@ -29,6 +29,7 @@ namespace BlogCoreEngine.Core.Entities
         [Required]
         public string Title { get; set; }
 
+        [Required]
         public string Preview { get; set; }
 
         [Required]

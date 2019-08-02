@@ -144,12 +144,20 @@ namespace BlogCoreEngine.Controllers
                     AuthorId = User.Identity.GetAuthorId(),
                     BlogId = id,
                     Created = DateTime.Now,
-                    Modified = DateTime.Now
+                    Modified = DateTime.Now,
+                    Archieved = false,
+                    Pinned = false,
+                    Preview = post.Preview,
+                    Link = post.Link,
+                    Title = post.Title,
+                    Views = 0,
+                    Cover = post.Cover.ToByteArray(),
+                    Content = post.Text
                 });
 
                 await this.applicationContext.SaveChangesAsync();
 
-                return RedirectToAction("View", "Blog", new { id = postId });
+                return RedirectToAction("Details", "Post", new { id = postId });
             }
 
             return View(post);
@@ -162,7 +170,6 @@ namespace BlogCoreEngine.Controllers
 
             PostDataModel postDataModel = new PostDataModel
             {
-
                 Title = WebsiteUrl,
                 Preview = WebsiteUrl,
                 Link = WebsiteUrl,
@@ -170,13 +177,13 @@ namespace BlogCoreEngine.Controllers
                 AuthorId = currentUser.AuthorId
             };
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(WebsiteUrl);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            HttpWebRequest request = WebRequest.Create(WebsiteUrl) as HttpWebRequest;
+            HttpWebResponse response = request.GetResponse() as HttpWebResponse;
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 Stream receiveStream = response.GetResponseStream();
-                StreamReader readStream = null;
+                StreamReader readStream = StreamReader.Null;
 
                 if (response.CharacterSet == null)
                 {

@@ -13,7 +13,7 @@ namespace BlogCoreEngine.Core.Entities
 
         public Author() { }
 
-        public ILazyLoader LazyLoader { get; set; }
+        private ILazyLoader LazyLoader { get; set; }
 
         public Author(ILazyLoader lazyLoader)
         {

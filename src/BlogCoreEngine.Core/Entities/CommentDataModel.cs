@@ -13,7 +13,7 @@ namespace BlogCoreEngine.Core.Entities
 
         public CommentDataModel() { }
 
-        public ILazyLoader LazyLoader { get; set; }
+        private ILazyLoader LazyLoader { get; set; }
 
         public CommentDataModel(ILazyLoader lazyLoader)
         {

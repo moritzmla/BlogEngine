@@ -59,31 +59,31 @@
                 </div>
             }
 
-        <div class="underline">
-            <h1 style="color: gray;">@Model.Views Views</h1>
-            <h1><strong>@Model.Comments.Count()</strong> Comments</h1>
+            <div class="underline">
+                <h1 style="color: gray;">@Model.Views Views</h1>
+                <h1><strong>@Model.Comments.Count()</strong> Comments</h1>
 
-            @if (User.Identity.IsAuthenticated)
-            {
-                @if (User.Identity.GetAuthorId() == Model.AuthorId || User.IsInRole("Administrator"))
+                @if (User.Identity.IsAuthenticated)
                 {
-                    <a class="clickLink" asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
-                    <a class="clickLink" style="color: red" asp-controller="Post" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
-                }
+                    @if (User.Identity.GetAuthorId() == Model.AuthorId || User.IsInRole("Administrator"))
+                    {
+                        <a class="clickLink" asp-controller="Post" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+                        <a class="clickLink" style="color: red" asp-controller="Post" asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+                    }
 
-                @if (User.IsInRole("Administrator"))
-                {
-                    @if (Model.Pinned)
+                    @if (User.IsInRole("Administrator"))
                     {
-                        <a class="clickLink" style="color: darkkhaki" asp-controller="Post" asp-action="Pin" asp-route-id="@Model.Id">Unpin</a>
-                    }
-                    else
-                    {
-                        <a class="clickLink" style="color: darkkhaki" asp-controller="Post" asp-action="Pin" asp-route-id="@Model.Id">Pin</a>
+                        @if (Model.Pinned)
+                        {
+                            <a class="clickLink" style="color: darkkhaki" asp-controller="Post" asp-action="Pin" asp-route-id="@Model.Id">Unpin</a>
+                        }
+                        else
+                        {
+                            <a class="clickLink" style="color: darkkhaki" asp-controller="Post" asp-action="Pin" asp-route-id="@Model.Id">Pin</a>
+                        }
                     }
                 }
-            }
-        </div>
+            </div>
         </div>
     </div>
 </div>

@@ -12,7 +12,7 @@ namespace BlogCoreEngine.Core.Entities
 
         public BlogDataModel() { }
 
-        public ILazyLoader LazyLoader { get; set; }
+        private ILazyLoader LazyLoader { get; set; }
 
         public BlogDataModel(ILazyLoader lazyLoader)
         {
