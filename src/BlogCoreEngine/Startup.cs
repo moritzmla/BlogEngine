@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlogCoreEngine.Core.Interfaces;
+using BlogCoreEngine.Core.Services;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.DataAccess.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -31,8 +33,18 @@ namespace BlogCoreEngine
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
+            services.AddScoped(typeof(IAsyncRepository<>), typeof(AsyncRepository<>));
             services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AppClaimsPrincipalFactory>();
 
+            services.AddScoped<IBlogOptionService, BlogOptionService>();
+
+            ConfigurateIdentity(services);
+
+            services.AddMvc();
+        }
+
+        private void ConfigurateIdentity(IServiceCollection services)
+        {
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = false;
@@ -49,8 +61,6 @@ namespace BlogCoreEngine
                 options.LogoutPath = "/Account/Logout";
                 options.AccessDeniedPath = "/Home/NoAccess";
             });
-
-            services.AddMvc();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)

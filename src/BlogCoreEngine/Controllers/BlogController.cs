@@ -1,40 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using BlogCoreEngine.Core.Entities;
-using BlogCoreEngine.DataAccess.Data;
+using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.Web.Extensions;
 using BlogCoreEngine.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlogCoreEngine.Controllers
 {
     public class BlogController : Controller
     {
-        protected ApplicationDbContext applicationContext;
-        protected UserManager<ApplicationUser> userManager;
-        protected SignInManager<ApplicationUser> signInManager;
-        protected RoleManager<IdentityRole> roleManager;
+        private readonly IAsyncRepository<BlogDataModel> blogRepository;
 
-        public BlogController(ApplicationDbContext applicationContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+        public BlogController(IAsyncRepository<BlogDataModel> blogRepository)
         {
-            this.applicationContext = applicationContext;
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.roleManager = roleManager;
+            this.blogRepository = blogRepository;
         }
 
         #region View
 
-        public IActionResult View(Guid id)
+        public async Task<IActionResult> View(Guid id)
         {
-            var blog = this.applicationContext.Blogs.FirstOrDefault(x => x.Id == id);
+            var blog = await this.blogRepository.GetById(id);
             return View(blog);
         }
 
@@ -53,11 +42,9 @@ namespace BlogCoreEngine.Controllers
         {
             if (ModelState.IsValid)
             {
-                var blogId = Guid.NewGuid();
-
-                await this.applicationContext.Blogs.AddAsync(new BlogDataModel
+                var newBlog = await this.blogRepository.Add(new BlogDataModel
                 {
-                    Id = blogId,
+                    Id = Guid.NewGuid(),
                     Name = blog.Name,
                     Description = blog.Description,
                     Cover = blog.Cover.ToByteArray(),
@@ -65,9 +52,7 @@ namespace BlogCoreEngine.Controllers
                     Modified = DateTime.Now
                 });
 
-                await this.applicationContext.SaveChangesAsync();
-
-                return RedirectToAction("View", "Blog", new { id = blogId });
+                return RedirectToAction("View", "Blog", new { id = newBlog.Id });
             }
             return View(blog);
         }
@@ -77,33 +62,32 @@ namespace BlogCoreEngine.Controllers
         #region Edit
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            return View(this.applicationContext.Blogs.FirstOrDefault(x => x.Id == id));
+            return View(await this.blogRepository.GetById(id));
         }
 
         [Authorize(Roles = "Administrator"), HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, BlogDataModel blog, IFormFile formFile)
+        public async Task<IActionResult> Edit(Guid id, BlogDataModel blog, IFormFile formFile)
         {
-            BlogDataModel target = this.applicationContext.Blogs.FirstOrDefault(x => x.Id == id);
+            var targetBlog = await this.blogRepository.GetById(id);
 
             if (ModelState.IsValid)
             {
-                target.Name = blog.Name;
-                target.Description = blog.Description;
+                targetBlog.Name = blog.Name;
+                targetBlog.Description = blog.Description;
 
                 if (!(formFile == null || formFile.Length <= 0))
                 {
-                    target.Cover = formFile.ToByteArray();
+                    targetBlog.Cover = formFile.ToByteArray();
                 }
 
-                this.applicationContext.Blogs.Update(target);
-                this.applicationContext.SaveChanges();
+                await this.blogRepository.Update(targetBlog);
 
                 return RedirectToAction("View", "Blog", new { id });
             }
 
-            blog.Cover = target.Cover;
+            blog.Cover = targetBlog.Cover;
 
             return View(blog);
         }
@@ -113,13 +97,9 @@ namespace BlogCoreEngine.Controllers
         #region Delete
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            BlogDataModel blog = this.applicationContext.Blogs.Include(x => x.Posts).FirstOrDefault(x => x.Id == id);
-            this.applicationContext.Posts.RemoveRange(blog.Posts);
-            this.applicationContext.Blogs.Remove(blog);
-            this.applicationContext.SaveChanges();
-
+            await this.blogRepository.Remove(id);
             return RedirectToAction("Index", "Home");
         }
 

@@ -1,33 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using BlogCoreEngine.Core.Entities;
+using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.DataAccess.Extensions;
 using BlogCoreEngine.ViewModels;
+using BlogCoreEngine.Web.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlogCoreEngine.Controllers
 {
     public class AccountController : Controller
     {
-        protected readonly ApplicationDbContext applicationContext;
+        private readonly IAsyncRepository<Author> authorRepository;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
 
-        protected UserManager<ApplicationUser> userManager;
-        protected SignInManager<ApplicationUser> signInManager;
-
-        public AccountController(ApplicationDbContext applicationContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(IAsyncRepository<Author> authorRepository, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
-            this.applicationContext = applicationContext;
+            this.authorRepository = authorRepository;
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
@@ -57,11 +53,7 @@ namespace BlogCoreEngine.Controllers
             {
                 if (!(profileViewModel.ProfilePicture == null || profileViewModel.ProfilePicture.Length <= 0))
                 {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        profileViewModel.ProfilePicture.CopyTo(memoryStream);
-                        target.Author.Image = memoryStream.ToArray();
-                    }
+                    target.Author.Image = profileViewModel.ProfilePicture.ToByteArray();
                 }
 
                 await this.userManager.UpdateAsync(target);
@@ -77,10 +69,10 @@ namespace BlogCoreEngine.Controllers
 
         #region Profile
 
-        public IActionResult Profile(string id)
+        public async Task<IActionResult> Profile(string id)
         {
-            ApplicationUser profile = this.applicationContext.Users.FirstOrDefault(u => u.UserName == id);
-            return View(profile.Author);
+            var user = await this.userManager.FindByNameAsync(id);
+            return View(user.Author);
         }
 
         #endregion
@@ -93,23 +85,20 @@ namespace BlogCoreEngine.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Register(RegisterViewModel registerViewModel)
+        public async Task<IActionResult> Register(RegisterViewModel registerViewModel)
         {
             if (ModelState.IsValid)
             {
                 if(registerViewModel.Password.Equals(registerViewModel.ConfirmPassword))
                 {
-                    Author author = new Author
+                    var author = await this.authorRepository.Add(new Author
                     {
                         Id = Guid.NewGuid(),
                         Created = DateTime.Now,
                         Modified = DateTime.Now,
                         Name = registerViewModel.UserName,
                         Image = System.IO.File.ReadAllBytes(".//wwwroot//images//ProfilPicture.png")
-                    };
-
-                    applicationContext.Authors.Add(author);
-                    applicationContext.SaveChanges();
+                    });
 
                     ApplicationUser applicationUser = new ApplicationUser
                     {
@@ -118,13 +107,17 @@ namespace BlogCoreEngine.Controllers
                         Author = author
                     };
 
-                    IdentityResult result = userManager.CreateAsync(applicationUser, registerViewModel.Password).Result;
+                    var result = await userManager.CreateAsync(applicationUser, registerViewModel.Password);
 
                     if(result.Succeeded)
                     {
-                        this.userManager.AddToRoleAsync(applicationUser, "Writer");
+                        await this.userManager.AddToRoleAsync(applicationUser, "Writer");
 
-                        this.signInManager.PasswordSignInAsync(registerViewModel.UserName, registerViewModel.Password, registerViewModel.RememberMe, false);
+                        await this.signInManager.PasswordSignInAsync(
+                            registerViewModel.UserName, 
+                            registerViewModel.Password, 
+                            registerViewModel.RememberMe, 
+                            false);
 
                         return RedirectToAction("Index", "Home");
                     } else
@@ -195,19 +188,6 @@ namespace BlogCoreEngine.Controllers
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
             return RedirectToAction("Index", "Home");
-        }
-
-        #endregion
-
-        #region Methods
-
-        private byte[] FileToByteArray(IFormFile _formFile)
-        {
-            using (MemoryStream _memoryStream = new MemoryStream())
-            {
-                _formFile.CopyTo(_memoryStream);
-                return _memoryStream.ToArray();
-            }
         }
 
         #endregion

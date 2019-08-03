@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using BlogCoreEngine.Core.Entities;
+using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.DataAccess.Extensions;
 using BlogCoreEngine.Web.Extensions;
@@ -15,39 +13,30 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlogCoreEngine.Controllers
 {
     public class PostController : Controller
     {
-        private readonly ApplicationDbContext applicationContext;
+        private readonly IAsyncRepository<PostDataModel> postRepository;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly SignInManager<ApplicationUser> signInManager;
-        private readonly RoleManager<IdentityRole> roleManager;
 
-        public PostController(ApplicationDbContext applicationContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+        public PostController(IAsyncRepository<PostDataModel> postRepository, UserManager<ApplicationUser> userManager)
         {
-            this.applicationContext = applicationContext;
+            this.postRepository = postRepository;
             this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.roleManager = roleManager;
         }
 
         #region Pin
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult Pin(Guid id)
+        public async Task<IActionResult> Pin(Guid id)
         {
-            var post = this.applicationContext.Posts.FirstOrDefault(p => p.Id == id);
+            var post = await this.postRepository.GetById(id);
 
             post.Pinned = !post.Pinned;
 
-            this.applicationContext.Posts.Update(post);
-            this.applicationContext.SaveChanges();
+            await this.postRepository.Update(post);
 
             return RedirectToAction("View", "Blog", new { id = post.BlogId });
         }
@@ -56,15 +45,14 @@ namespace BlogCoreEngine.Controllers
 
         #region Details
 
-        public IActionResult Details(Guid id)
+        public async Task<IActionResult> Details(Guid id)
         {
-            PostDataModel post = this.applicationContext.Posts.FirstOrDefault(p => p.Id == id);
+            var post = await this.postRepository.GetById(id);
 
             if (post != null)
             {
                 post.Views += 1;
-                this.applicationContext.Posts.Update(post);
-                this.applicationContext.SaveChanges();
+                await this.postRepository.Update(post);
             }
 
             return View(post);
@@ -75,22 +63,22 @@ namespace BlogCoreEngine.Controllers
         #region Edit
 
         [Authorize]
-        public IActionResult Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            PostDataModel target = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
+            var post = await this.postRepository.GetById(id);
 
-            if (!(User.Identity.GetAuthorId() == target.AuthorId || this.User.IsInRole("Administrator")))
+            if (!(User.Identity.GetAuthorId() == post.AuthorId || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
 
-            return View(target);
+            return View(post);
         }
 
         [Authorize, HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, PostDataModel postDataModel, IFormFile formFile)
+        public async Task<IActionResult> Edit(Guid id, PostDataModel postDataModel, IFormFile formFile)
         {
-            PostDataModel post = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
+            var post = await this.postRepository.GetById(id);
 
             if (ModelState.IsValid)
             {
@@ -108,8 +96,7 @@ namespace BlogCoreEngine.Controllers
                     }
                 }
 
-                this.applicationContext.Posts.Update(post);
-                this.applicationContext.SaveChanges();
+                await this.postRepository.Update(post);
 
                 return RedirectToAction("View", "Blog", new { id = post.BlogId });
             }
@@ -136,11 +123,9 @@ namespace BlogCoreEngine.Controllers
         {
             if (ModelState.IsValid)
             {
-                var postId = Guid.NewGuid();
-
-                await this.applicationContext.Posts.AddAsync(new PostDataModel
+                var newPost = await this.postRepository.Add(new PostDataModel
                 {
-                    Id = postId,
+                    Id = Guid.NewGuid(),
                     AuthorId = User.Identity.GetAuthorId(),
                     BlogId = id,
                     Created = DateTime.Now,
@@ -155,26 +140,22 @@ namespace BlogCoreEngine.Controllers
                     Content = post.Text
                 });
 
-                await this.applicationContext.SaveChangesAsync();
-
-                return RedirectToAction("Details", "Post", new { id = postId });
+                return RedirectToAction("Details", "Post", new { id = newPost.Id });
             }
 
             return View(post);
         }
 
         [Authorize(Roles = "Administrator"), HttpPost]
-        public IActionResult Steal(Guid id, string WebsiteUrl)
+        public async Task<IActionResult> Steal(Guid id, string WebsiteUrl)
         {
-            ApplicationUser currentUser = this.applicationContext.Users.FirstOrDefault(u => u.Id == this.User.FindFirstValue(ClaimTypes.NameIdentifier));
-
             PostDataModel postDataModel = new PostDataModel
             {
                 Title = WebsiteUrl,
                 Preview = WebsiteUrl,
                 Link = WebsiteUrl,
                 BlogId = id,
-                AuthorId = currentUser.AuthorId
+                AuthorId = User.Identity.GetAuthorId()
             };
 
             HttpWebRequest request = WebRequest.Create(WebsiteUrl) as HttpWebRequest;
@@ -200,8 +181,7 @@ namespace BlogCoreEngine.Controllers
                 readStream.Close();
             }
 
-            this.applicationContext.Posts.Add(postDataModel);
-            this.applicationContext.SaveChanges();
+            await this.postRepository.Add(postDataModel);
 
             return RedirectToAction("View", "Blog", new { id });
         }
@@ -213,17 +193,16 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public async Task<IActionResult> Archiv(Guid id)
         {
-            PostDataModel target = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
+            var post = await this.postRepository.GetById(id);
 
-            if (!((User.Identity.GetAuthorId() == target.Author.Id) || this.User.IsInRole("Administrator")))
+            if (!((User.Identity.GetAuthorId() == post.AuthorId) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
 
-            target.Archieved = !target.Archieved;
+            post.Archieved = !post.Archieved;
 
-            this.applicationContext.Posts.Update(target);
-            await this.applicationContext.SaveChangesAsync();
+            await this.postRepository.Update(post);
 
             return RedirectToAction("Details", "Post", new { id });
         }
@@ -235,20 +214,16 @@ namespace BlogCoreEngine.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(Guid id)
         {
-            PostDataModel target = this.applicationContext.Posts.FirstOrDefault(x => x.Id == id);
+            var post = await this.postRepository.GetById(id);
 
-            if (!((User.Identity.GetAuthorId() == target.Author.Id) || this.User.IsInRole("Administrator")))
+            if (!((User.Identity.GetAuthorId() == post.AuthorId) || this.User.IsInRole("Administrator")))
             {
                 return RedirectToAction("NoAccess", "Home");
             }
 
-            if (target != null)
-            {
-                this.applicationContext.Comments.RemoveRange(target.Comments);
-                await this.applicationContext.SaveChangesAsync();
-            }
+            await this.postRepository.Remove(id);
 
-            return RedirectToAction("View", "Blog", new { id = target.BlogId });
+            return RedirectToAction("View", "Blog", new { id = post.BlogId });
         }
 
         #endregion

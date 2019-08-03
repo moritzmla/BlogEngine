@@ -40,11 +40,13 @@ namespace BlogCoreEngine.DataAccess.Data
         {
             builder.HasMany(c => c.Posts)
                 .WithOne(a => a.Author)
-                .HasForeignKey(x => x.AuthorId);
+                .HasForeignKey(x => x.AuthorId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasMany(c => c.Comments)
                 .WithOne(a => a.Author)
-                .HasForeignKey(x => x.AuthorId);
+                .HasForeignKey(x => x.AuthorId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Property(x => x.Image)
                 .HasDefaultValue(System.IO.File.ReadAllBytes(".//wwwroot//images//Profile.png"));
@@ -54,7 +56,8 @@ namespace BlogCoreEngine.DataAccess.Data
         {
             builder.HasMany(x => x.Posts)
                 .WithOne(x => x.Blog)
-                .HasForeignKey(x => x.BlogId);
+                .HasForeignKey(x => x.BlogId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Property(x => x.Cover)
                 .HasDefaultValue(System.IO.File.ReadAllBytes(".//wwwroot//images//Default.png"));
@@ -71,14 +74,16 @@ namespace BlogCoreEngine.DataAccess.Data
         private void ConfigurateApplicationUser(EntityTypeBuilder<ApplicationUser> builder)
         {
             builder.HasOne(x => x.Author)
-                .WithOne();
+                .WithOne()
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
         private void ConfiguratePost(EntityTypeBuilder<PostDataModel> builder)
         {
             builder.HasMany(c => c.Comments)
                 .WithOne(b => b.Post)
-                .HasForeignKey(x => x.PostId);
+                .HasForeignKey(x => x.PostId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Property(x => x.Pinned)
                 .HasDefaultValue(false);

@@ -1,14 +1,15 @@
 ﻿@model BlogCoreEngine.ViewModels.SearchViewModel
-@inject BlogCoreEngine.DataAccess.Data.ApplicationDbContext applicationContext;
-
 @using BlogCoreEngine.Core.Entities;
+
+@inject BlogCoreEngine.Core.Interfaces.IAsyncRepository<Author> authorRepository;
+
 @{
     var TopToday = Model.Posts.OrderByDescending(x => x.Views).Take(3).Where(x => x.Created.Date == DateTime.Today);
 
     Author currentUser = null;
     if (User.Identity.IsAuthenticated)
     {
-        currentUser = applicationContext.Authors.FirstOrDefault(x => x.Id == User.Identity.GetAuthorId());
+        currentUser = await authorRepository.GetById(User.Identity.GetAuthorId());
     }
 }
 
@@ -51,7 +52,7 @@
         @if (User.Identity.IsAuthenticated)
         {
             <div class="container" style="height: 200px;">
-                <img style="height: 80px; margin-bottom: 10px" src="data:image;base64,@System.Convert.ToBase64String(currentUser.Image)" />
+                <img style="height: 80px; margin-bottom: 10px; border-radius: 50px" src="data:image;base64,@System.Convert.ToBase64String(currentUser.Image)" />
                 <h2 style="text-align: center"><strong>@currentUser.Name</strong></h2>
 
                 <p style="margin-top: 20px; font-size: 13px; color: gray;">Posts: @currentUser.Posts.Count()</p>

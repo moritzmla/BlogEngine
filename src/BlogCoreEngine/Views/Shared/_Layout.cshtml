@@ -1,4 +1,4 @@
-﻿@inject BlogCoreEngine.DataAccess.Data.ApplicationDbContext applicationContext
+﻿@inject BlogCoreEngine.Core.Interfaces.IBlogOptionService blogOptionService;
 
 <!DOCTYPE html>
 
@@ -10,7 +10,7 @@
     <meta name="author" content="Moritz Müller" />
     <meta name="description" content="BlogCoreEngine" />
 
-    <link rel="icon" href="data:image;base64,@System.Convert.ToBase64String(@applicationContext.Options.First().Logo)" />
+    <link rel="icon" href="data:image;base64,@System.Convert.ToBase64String(await blogOptionService.GetLogo())" />
 
     <link rel="stylesheet" href="~/css/Site.css" />
     <link rel="stylesheet" href="~/css/Comment.css" />
@@ -22,7 +22,7 @@
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet">
 
-    <title>@applicationContext.Options.First().Title</title>
+    <title>@await blogOptionService.GetTitle()</title>
 </head>
 
 <body>
@@ -30,12 +30,12 @@
         <div class="topbar">
             <div class="logo">
                 <a asp-controller="Home" asp-action="Index">
-                    <img src="data:image;base64,@System.Convert.ToBase64String(@applicationContext.Options.First().Logo)" alt="LOGO" />
+                    <img src="data:image;base64,@System.Convert.ToBase64String(await blogOptionService.GetLogo())" alt="LOGO" />
                 </a>
             </div>
 
             <div class="branding">
-                <h1><a asp-controller="Home" asp-action="Index">@applicationContext.Options.First().Title</a></h1>
+                <h1><a asp-controller="Home" asp-action="Index">@await blogOptionService.GetTitle()</a></h1>
             </div>
 
             <div class="searchbar">

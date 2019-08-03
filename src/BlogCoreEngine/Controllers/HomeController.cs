@@ -1,44 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using BlogCoreEngine.Core.Entities;
+using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.ViewModels;
+using BlogCoreEngine.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlogCoreEngine.Controllers
 {
     public class HomeController : Controller
     {
-        protected ApplicationDbContext applicationContext;
-        protected UserManager<ApplicationUser> userManager;
-        protected SignInManager<ApplicationUser> signInManager;
-        protected RoleManager<IdentityRole> roleManager;
+        private readonly IAsyncRepository<BlogDataModel> blogRepository;
+        private readonly IAsyncRepository<PostDataModel> postRepository;
+        private readonly IAsyncRepository<Author> authorRepository;
+        private readonly IBlogOptionService blogOptionService;
 
-        public HomeController(ApplicationDbContext applicationContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+        private readonly UserManager<ApplicationUser> userManager;
+
+        public HomeController(
+            IAsyncRepository<BlogDataModel> blogRepository, 
+            IAsyncRepository<PostDataModel> postRepository,
+            IAsyncRepository<Author> authorRepository,
+            IBlogOptionService blogOptionService,
+            UserManager<ApplicationUser> userManager)
         {
-            this.applicationContext = applicationContext;
             this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.roleManager = roleManager;
+            this.blogOptionService = blogOptionService;
+            this.authorRepository = authorRepository;
+            this.blogRepository = blogRepository;
+            this.postRepository = postRepository;
         }
 
         #region Index
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             SearchViewModel search = new SearchViewModel
             {
-                Blogs = this.applicationContext.Blogs.ToList(),
-                Posts = this.applicationContext.Posts.ToList()
+                Blogs = await this.blogRepository.GetAll(),
+                Posts = await this.postRepository.GetAll()
             };
 
             return View(search);
@@ -49,58 +54,37 @@ namespace BlogCoreEngine.Controllers
         #region Search
 
         [HttpPost]
-        public IActionResult Search(string searchString)
+        public async Task<IActionResult> Search(string searchString)
         {
             if(string.IsNullOrWhiteSpace(searchString))
             {
                 return RedirectToAction("Index", "Home");
             }
 
-            var posts = this.applicationContext.Posts;
-            var blogs = this.applicationContext.Blogs;
-            var users = this.applicationContext.Authors;
+            var posts = await this.postRepository.GetAll();
+            var blogs = await this.blogRepository.GetAll();
+            var users = await this.authorRepository.GetAll();
 
-            List<PostDataModel> searchedPost = new List<PostDataModel>();
-            foreach (PostDataModel post in posts)
-            {
-                if(post.Title.ToLower().Contains(searchString.ToLower()) || post.Preview.ToLower().Contains(searchString.ToLower()))
-                {
-                    if(!searchedPost.Contains(post))
-                    {
-                        searchedPost.Add(post);
-                    }
-                }
-            }
 
-            List<BlogDataModel> searchedBlogs = new List<BlogDataModel>();
-            foreach (BlogDataModel blog in blogs)
-            {
-                if (blog.Name.ToLower().Contains(searchString.ToLower()) || blog.Description.ToLower().Contains(searchString.ToLower()))
-                {
-                    if (!searchedBlogs.Contains(blog))
-                    {
-                        searchedBlogs.Add(blog);
-                    }
-                }
-            }
+            var searchedPost = posts.Where(
+                x => x.Title.ToLower().Contains(searchString.ToLower()) ||
+                x.Preview.ToLower().Contains(searchString.ToLower())
+                );
 
-            List<Author> searchedUsers = new List<Author>();
-            foreach (Author user in users)
-            {
-                if (user.Name.ToLower().Contains(searchString.ToLower()))
-                {
-                    if (!searchedUsers.Contains(user))
-                    {
-                        searchedUsers.Add(user);
-                    }
-                }
-            }
+            var searchedBlogs = blogs.Where(
+                x => x.Name.ToLower().Contains(searchString.ToLower()) ||
+                x.Description.ToLower().Contains(searchString.ToLower())
+                );
+
+            var searchedUsers = users.Where(
+                x => x.Name.ToLower().Contains(searchString.ToLower())
+                );
 
             SearchViewModel result = new SearchViewModel
             {
-                Posts = searchedPost,
-                Blogs = searchedBlogs,
-                Users = searchedUsers
+                Posts = searchedPost.ToList(),
+                Blogs = searchedBlogs.ToList(),
+                Users = searchedUsers.ToList()
             };
 
             return View(result);
@@ -126,23 +110,21 @@ namespace BlogCoreEngine.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult Users()
+        public async Task<IActionResult> Users()
         {
-            return View(applicationContext.Users.ToList());
+            return View(await this.authorRepository.GetAll());
         }
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult Blogs()
+        public async Task<IActionResult> Blogs()
         {
-            return View(applicationContext.Blogs.ToList());
+            return View(await this.blogRepository.GetAll());
         }
 
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> SetAdmin(string id)
         {
             await this.userManager.AddToRoleAsync(await userManager.FindByIdAsync(id), "Administrator");
-            this.applicationContext.SaveChanges();
-
             return RedirectToAction("Users");
         }
 
@@ -150,8 +132,6 @@ namespace BlogCoreEngine.Controllers
         public async Task<IActionResult> DeleteUser(string id)
         {
             await this.userManager.DeleteAsync(await userManager.FindByIdAsync(id));
-            this.applicationContext.SaveChanges();
-
             return RedirectToAction("Users");
         }
 
@@ -160,37 +140,25 @@ namespace BlogCoreEngine.Controllers
         #region Settings
 
         [Authorize(Roles = "Administrator")]
-        public IActionResult Settings()
+        public async Task<IActionResult> Settings()
         {
-            OptionDataModel options = applicationContext
-                .Options
-                .First();
-
             SettingViewModel settingViewModel = new SettingViewModel();
-            settingViewModel.Title = options.Title;
+            settingViewModel.Title = await this.blogOptionService.GetTitle();
 
-            ViewBag.LogoToBytes = options.Logo;
+            ViewBag.LogoToBytes = await this.blogOptionService.GetLogo();
 
             return View(settingViewModel);
         }
 
         [Authorize(Roles = "Administrator")]
         [HttpPost, ValidateAntiForgeryToken]
-        public IActionResult Settings(SettingViewModel settingViewModel)
+        public async Task<IActionResult> Settings(SettingViewModel settingViewModel)
         {
-            OptionDataModel options = applicationContext
-                .Options
-                .First();
-
             if (ModelState.IsValid)
             {
                 if(!(settingViewModel.Logo == null || settingViewModel.Logo.Length <= 0))
                 {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        settingViewModel.Logo.CopyTo(memoryStream);
-                        options.Logo = memoryStream.ToArray();
-                    }
+                    await this.blogOptionService.SetLogo(settingViewModel.Logo.ToByteArray());
                 }
 
                 if (!(settingViewModel.Background == null || settingViewModel.Background.Length <= 0))
@@ -202,13 +170,10 @@ namespace BlogCoreEngine.Controllers
                     }
                 }
 
-                options.Title = settingViewModel.Title;
-
-                this.applicationContext.Update(options);
-                this.applicationContext.SaveChanges();
+                await this.blogOptionService.SetTitle(settingViewModel.Title);
             }
 
-            ViewBag.LogoToBytes = options.Logo;
+            ViewBag.LogoToBytes = await this.blogOptionService.GetLogo();
 
             return View(settingViewModel);
         }
