@@ -29,32 +29,26 @@ You need the .NET Core 2.2 SDK (Download: https://dotnet.microsoft.com/download)
   
 # Images
 
-   Index
   <img src="images/1.PNG" width="850">
   
   <hr />
   
-  Details
   <img src="images/2.PNG" width="850">
   
   <hr />
   
-  New Post 
   <img src="images/3.PNG" width="850">
   
   <hr />
   
-  Profil
   <img src="images/4.PNG" width="850">
   
   <hr />
   
-  Admin Panel Settings
   <img src="images/5.PNG" width="850">
   
   <hr />
   
-  Admin Panel Users
   <img src="images/6.PNG" width="850">
 
 
