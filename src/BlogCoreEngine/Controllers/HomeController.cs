@@ -65,20 +65,16 @@ namespace BlogCoreEngine.Controllers
             var blogs = await this.blogRepository.GetAll();
             var users = await this.authorRepository.GetAll();
 
-
             var searchedPost = posts.Where(
                 x => x.Title.ToLower().Contains(searchString.ToLower()) ||
-                x.Preview.ToLower().Contains(searchString.ToLower())
-                );
+                x.Preview.ToLower().Contains(searchString.ToLower()));
 
             var searchedBlogs = blogs.Where(
                 x => x.Name.ToLower().Contains(searchString.ToLower()) ||
-                x.Description.ToLower().Contains(searchString.ToLower())
-                );
+                x.Description.ToLower().Contains(searchString.ToLower()));
 
             var searchedUsers = users.Where(
-                x => x.Name.ToLower().Contains(searchString.ToLower())
-                );
+                x => x.Name.ToLower().Contains(searchString.ToLower()));
 
             SearchViewModel result = new SearchViewModel
             {
@@ -110,9 +106,9 @@ namespace BlogCoreEngine.Controllers
         }
 
         [Authorize(Roles = "Administrator")]
-        public async Task<IActionResult> Users()
+        public IActionResult Users()
         {
-            return View(await this.authorRepository.GetAll());
+            return View(this.userManager.Users.ToList());
         }
 
         [Authorize(Roles = "Administrator")]
