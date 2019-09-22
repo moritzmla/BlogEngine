@@ -58,7 +58,7 @@ namespace BlogCoreEngine.Controllers
         {
             if(string.IsNullOrWhiteSpace(searchString))
             {
-                return RedirectToAction("Index", "Home");
+                return this.RedirectToAsync<HomeController>(x => x.Index());
             }
 
             var posts = await this.postRepository.GetAll();
@@ -121,14 +121,14 @@ namespace BlogCoreEngine.Controllers
         public async Task<IActionResult> SetAdmin(string id)
         {
             await this.userManager.AddToRoleAsync(await userManager.FindByIdAsync(id), "Administrator");
-            return RedirectToAction("Users");
+            return this.RedirectTo<HomeController>(x => x.Users());
         }
 
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             await this.userManager.DeleteAsync(await userManager.FindByIdAsync(id));
-            return RedirectToAction("Users");
+            return this.RedirectTo<HomeController>(x => x.Users());
         }
 
         #endregion

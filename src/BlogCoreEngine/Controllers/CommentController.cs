@@ -6,6 +6,7 @@ using BlogCoreEngine.Core.Entities;
 using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.DataAccess.Extensions;
+using BlogCoreEngine.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace BlogCoreEngine.Controllers
             if (string.IsNullOrWhiteSpace(CommentText))
             {
                 ModelState.AddModelError("", "Text field is required!");
-                return RedirectToAction("Details", "Post", new { id });
+                return this.RedirectToAsync<PostController>(x => x.Details(id));
             }
 
             await this.commentRepository.Add(new CommentDataModel
@@ -43,7 +44,7 @@ namespace BlogCoreEngine.Controllers
                 PostId = id
             });
 
-            return RedirectToAction("Details", "Post", new { id });
+            return this.RedirectToAsync<PostController>(x => x.Details(id));
         }
 
         #endregion
@@ -57,12 +58,12 @@ namespace BlogCoreEngine.Controllers
 
             if (!(User.Identity.GetAuthorId() == comment.AuthorId || this.User.IsInRole("Administrator")))
             {
-                return RedirectToAction("NoAccess", "Home");
+                return this.RedirectTo<HomeController>(x => x.NoAccess());
             }
 
             await this.commentRepository.Remove(id);
 
-            return RedirectToAction("Details", "Post", new { id = comment.PostId });
+            return this.RedirectToAsync<PostController>(x => x.Details(comment.PostId.Value));
         }
 
         #endregion
@@ -76,7 +77,7 @@ namespace BlogCoreEngine.Controllers
 
             if (!(User.Identity.GetAuthorId() == comment.AuthorId || this.User.IsInRole("Administrator")))
             {
-                return RedirectToAction("NoAccess", "Home");
+                return this.RedirectTo<HomeController>(x => x.NoAccess());
             }
 
             return View(comment);
@@ -92,7 +93,7 @@ namespace BlogCoreEngine.Controllers
 
                 await this.commentRepository.Update(targetComment);
 
-                return RedirectToAction("Details", "Post", new { id = comment.PostId });
+                return this.RedirectToAsync<PostController>(x => x.Details(comment.PostId.Value));
             }
 
             return View(comment);

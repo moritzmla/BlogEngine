@@ -35,11 +35,11 @@ namespace BlogCoreEngine.Controllers
         {
             if (id != this.User.Identity.GetAuthorName())
             {
-                return RedirectToAction("NoAccess", "Home");
+                return this.RedirectTo<HomeController>(x => x.NoAccess());
             }
 
-            ApplicationUser target = this.userManager.Users.FirstOrDefault(u => u.UserName == id);
-            ViewBag.CurrentUserPicture = target.Author.Image;
+            var user = this.userManager.Users.FirstOrDefault(u => u.UserName == id);
+            ViewBag.CurrentUserPicture = user.Author.Image;
 
             return View();
         }
@@ -47,20 +47,20 @@ namespace BlogCoreEngine.Controllers
         [Authorize, HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Settings(string id, ProfileViewModel profileViewModel)
         {
-            ApplicationUser target = this.userManager.Users.FirstOrDefault(u => u.UserName == id);
+            var user = this.userManager.Users.FirstOrDefault(u => u.UserName == id);
 
             if (ModelState.IsValid)
             {
                 if (!(profileViewModel.ProfilePicture == null || profileViewModel.ProfilePicture.Length <= 0))
                 {
-                    target.Author.Image = profileViewModel.ProfilePicture.ToByteArray();
+                    user.Author.Image = profileViewModel.ProfilePicture.ToByteArray();
                 }
 
-                await this.userManager.UpdateAsync(target);
-                return RedirectToAction("Profile", "Account", new { id });
+                await this.userManager.UpdateAsync(user);
+                return this.RedirectToAsync<AccountController>(x => x.Profile(id));
             }
 
-            ViewBag.CurrentUserPicture = target.Author.Image;
+            ViewBag.CurrentUserPicture = user.Author.Image;
 
             return View(profileViewModel);
         }
@@ -100,7 +100,7 @@ namespace BlogCoreEngine.Controllers
                         Image = System.IO.File.ReadAllBytes(".//wwwroot//images//ProfilPicture.png")
                     });
 
-                    ApplicationUser applicationUser = new ApplicationUser
+                    var applicationUser = new ApplicationUser
                     {
                         UserName = registerViewModel.UserName,
                         Email = registerViewModel.Email,
@@ -119,7 +119,7 @@ namespace BlogCoreEngine.Controllers
                             registerViewModel.RememberMe, 
                             false);
 
-                        return RedirectToAction("Index", "Home");
+                        return this.RedirectToAsync<HomeController>(x => x.Index());
                     } else
                     {
                         ModelState.AddModelError("", "Something dosen´t work.");
@@ -167,7 +167,7 @@ namespace BlogCoreEngine.Controllers
 
                 if(result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return this.RedirectToAsync<HomeController>(x => x.Index());
                 }
                 else
                 {
@@ -187,7 +187,7 @@ namespace BlogCoreEngine.Controllers
         public async Task<IActionResult> LogOutAsync()
         {
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
-            return RedirectToAction("Index", "Home");
+            return this.RedirectToAsync<HomeController>(x => x.Index());
         }
 
         #endregion
