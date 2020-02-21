@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -10,7 +9,7 @@ namespace BlogCoreEngine.Web.Extensions
 {
     public static class ControllerExtensions
     {
-        public static IActionResult RedirectTo<TController>(this Controller controller, 
+        public static IActionResult RedirectTo<TController>(this Controller controller,
             Expression<Action<TController>> redirectExpression) where TController : Controller
         {
             if (redirectExpression.Body.NodeType != ExpressionType.Call)

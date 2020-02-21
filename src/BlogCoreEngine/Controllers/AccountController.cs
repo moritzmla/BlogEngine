@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using BlogCoreEngine.Core.Entities;
+﻿using BlogCoreEngine.Core.Entities;
 using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.DataAccess.Extensions;
@@ -12,6 +9,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BlogCoreEngine.Controllers
 {
@@ -89,7 +89,7 @@ namespace BlogCoreEngine.Controllers
         {
             if (ModelState.IsValid)
             {
-                if(registerViewModel.Password.Equals(registerViewModel.ConfirmPassword))
+                if (registerViewModel.Password.Equals(registerViewModel.ConfirmPassword))
                 {
                     var author = await this.authorRepository.Add(new Author
                     {
@@ -97,7 +97,7 @@ namespace BlogCoreEngine.Controllers
                         Created = DateTime.Now,
                         Modified = DateTime.Now,
                         Name = registerViewModel.UserName,
-                        Image = System.IO.File.ReadAllBytes(".//wwwroot//images//ProfilPicture.png")
+                        Image = System.IO.File.ReadAllBytes(".//wwwroot//images//Profile.png")
                     });
 
                     var applicationUser = new ApplicationUser
@@ -109,22 +109,22 @@ namespace BlogCoreEngine.Controllers
 
                     var result = await userManager.CreateAsync(applicationUser, registerViewModel.Password);
 
-                    if(result.Succeeded)
+                    if (result.Succeeded)
                     {
-                        await this.userManager.AddToRoleAsync(applicationUser, "Writer");
-
                         await this.signInManager.PasswordSignInAsync(
-                            registerViewModel.UserName, 
-                            registerViewModel.Password, 
-                            registerViewModel.RememberMe, 
+                            registerViewModel.UserName,
+                            registerViewModel.Password,
+                            registerViewModel.RememberMe,
                             false);
 
                         return this.RedirectToAsync<HomeController>(x => x.Index());
-                    } else
+                    }
+                    else
                     {
                         ModelState.AddModelError("", "Something dosen´t work.");
                     }
-                } else
+                }
+                else
                 {
                     ModelState.AddModelError("", "Passwords dosen´t are the same.");
                 }
@@ -157,7 +157,8 @@ namespace BlogCoreEngine.Controllers
                     {
                         ModelState.AddModelError("", "Invalid login attempt.");
                         return View(loginViewModel);
-                    } else
+                    }
+                    else
                     {
                         userName = user.UserName;
                     }
@@ -165,7 +166,7 @@ namespace BlogCoreEngine.Controllers
 
                 var result = await signInManager.PasswordSignInAsync(userName, loginViewModel.Password, loginViewModel.RememberMe, false);
 
-                if(result.Succeeded)
+                if (result.Succeeded)
                 {
                     return this.RedirectToAsync<HomeController>(x => x.Index());
                 }

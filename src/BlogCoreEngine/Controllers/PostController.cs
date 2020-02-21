@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using BlogCoreEngine.Core.Entities;
+﻿using BlogCoreEngine.Core.Entities;
 using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.DataAccess.Extensions;
@@ -13,6 +8,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BlogCoreEngine.Controllers
 {
@@ -37,7 +37,7 @@ namespace BlogCoreEngine.Controllers
             post.Pinned = !post.Pinned;
             await this.postRepository.Update(post);
 
-            return this.RedirectToAsync<BlogController>(x => x.View(post.BlogId.Value)); 
+            return this.RedirectToAsync<BlogController>(x => x.View(post.BlogId.Value));
         }
 
         #endregion
@@ -112,10 +112,7 @@ namespace BlogCoreEngine.Controllers
         #region New
 
         [Authorize]
-        public IActionResult New(Guid id)
-        {
-            return View();
-        }
+        public IActionResult New(Guid id) => View();
 
         [Authorize, HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Guid id, PostViewModel post)
@@ -163,7 +160,7 @@ namespace BlogCoreEngine.Controllers
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var receiveStream = response.GetResponseStream();
-                var readStream = response.CharacterSet == null ? new StreamReader(receiveStream) : 
+                var readStream = response.CharacterSet == null ? new StreamReader(receiveStream) :
                     new StreamReader(receiveStream, Encoding.GetEncoding(response.CharacterSet));
 
                 post.Content = readStream.ReadToEnd();

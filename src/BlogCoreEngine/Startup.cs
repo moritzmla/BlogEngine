@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BlogCoreEngine.Core.Interfaces;
+﻿using BlogCoreEngine.Core.Interfaces;
 using BlogCoreEngine.Core.Services;
 using BlogCoreEngine.DataAccess.Data;
 using BlogCoreEngine.DataAccess.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
 
 namespace BlogCoreEngine
 {
@@ -27,7 +24,9 @@ namespace BlogCoreEngine
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options => 
+            services.AddControllersWithViews();
+
+            services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DataConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -39,8 +38,6 @@ namespace BlogCoreEngine
             services.AddScoped<IBlogOptionService, BlogOptionService>();
 
             ConfigurateIdentity(services);
-
-            services.AddMvc();
         }
 
         private void ConfigurateIdentity(IServiceCollection services)
@@ -63,21 +60,26 @@ namespace BlogCoreEngine
             });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseAuthentication();
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseMvc(routes => {
-                routes.MapRoute(
-                        name: "default",
-                        template: "{controller=Home}/{action=Index}/{id?}"
-                    );
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

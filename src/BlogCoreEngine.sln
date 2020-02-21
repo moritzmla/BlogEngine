@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogCoreEngine.Web", "BlogCoreEngine\BlogCoreEngine.Web.csproj", "{F72E401B-66A7-4C42-85ED-57137A29E3A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogCoreEngine.Core", "BlogCoreEngine.Core\BlogCoreEngine.Core.csproj", "{05BE9427-3FAE-4F3D-B64D-3F4781D05749}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogCoreEngine.Core", "BlogCoreEngine.Core\BlogCoreEngine.Core.csproj", "{05BE9427-3FAE-4F3D-B64D-3F4781D05749}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlogCoreEngine.DataAccess", "BlogCoreEngine.DataAccess\BlogCoreEngine.DataAccess.csproj", "{148F2E09-5751-4206-ADFB-7864B8C2A86C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlogCoreEngine.DataAccess", "BlogCoreEngine.DataAccess\BlogCoreEngine.DataAccess.csproj", "{148F2E09-5751-4206-ADFB-7864B8C2A86C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
